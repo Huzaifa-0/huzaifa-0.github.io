@@ -18,7 +18,7 @@ const experienceData: ExperienceItem[] = [
     period: "February 2023 — Present",
     achievements: [
       "Led NestJS migration from Express.js with zero downtime, reducing runtime errors by 75%",
-      "Architected AI-powered systems: collaborative filtering recommendations (+45% engagement), scam detection (92% accuracy), content moderation (95%+ accuracy)",
+      "Architected AI-powered systems: collaborative filtering with content-based metadata recommendations (+45% engagement), scam detection (81% accuracy), content moderation (84%+ accuracy)",
       "Built microservices with FastAPI and Redis Pub/Sub, achieving <500ms real-time communication",
       "Implemented Redis Vector Search with Hugging Face transformers, improving match relevance by 65%",
       "Integrated Meilisearch and Mapbox clusters, optimized performance with Redis caching reducing costs by 60%",

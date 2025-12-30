@@ -63,7 +63,7 @@
       "Created bash scripts for database backup and restoration automation",
       "Added Meilisearch as system service in server for persistent operation",
       "Developed FastAPI microservice for AI-powered recommendation engine",
-      "Implemented collaborative filtering using fast.ai for personalized property recommendations",
+      "Implemented collaborative filtering with content-based metadata using fast.ai for personalized property recommendations",
       "Built automated scam detection system analyzing FTP imported ads",
       "Established Redis Pub/Sub communication between Laravel, FTP import service, and FastAPI",
       "Created machine learning pipeline for detecting fraudulent listings patterns"
@@ -137,11 +137,9 @@
       "Created custom JWT guard with Passport including token blacklisting functionality",
       "Handled cron jobs on single process using Redis distributed locks to prevent duplicate execution",
       "Implemented data virtualization for admin panel using aggregated queries and pagination",
-      "Deployed Redis Vector Search achieving <50ms semantic matching queries at scale",
       "Integrated Hugging Face models for profile embeddings improving match quality by 40%",
       "Built hybrid matching system combining traditional filtering with AI-powered semantic similarity",
-      "Achieved 65% improvement in match relevance using vector embeddings vs traditional methods",
-      "Optimized vector indexing strategy handling 100K+ user profiles with sub-second search times"
+      "Achieved 65% improvement in match relevance using vector embeddings vs traditional methods"
     ],
     "contributions": [
       "Adhered to TypeScript best practices using interfaces and type aliases throughout codebase",
@@ -157,10 +155,8 @@
       "Built vector embedding generation service processing user bios, interests, and preferences",
       "Created hybrid matching algorithm combining weighted preferences, cosine similarity, and vector search",
       "Designed efficient vector indexing schema in Redis for fast K-nearest neighbor queries",
-      "Integrated HNSW (Hierarchical Navigable Small World) algorithm for approximate nearest neighbor search",
       "Built automated reindexing pipeline updating user embeddings on profile changes",
       "Implemented semantic similarity scoring combining traditional metrics with embedding distances",
-      "Created A/B testing framework comparing traditional vs AI-powered matching performance",
       "Optimized embedding model selection balancing accuracy vs inference speed for production use"
     ]
   },
