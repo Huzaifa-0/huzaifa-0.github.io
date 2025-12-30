@@ -20,16 +20,19 @@ const About = () => {
             <div className="w-16 h-1 bg-primary mx-auto"></div>
           </AnimatedText>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="space-y-6">
               <AnimatedText delay={0.3}>
                 <p className="text-lg">
-                  Passionate and experienced Full Stack Software Developer with over 5+ years of experience in designing, developing, and managing robust back-end systems for web and mobile platforms. Proficient in Laravel, PHP, Node.js, and front-end technologies. Skilled in API development, database management, and optimizing application performance. Proven ability to collaborate effectively with cross-functional teams to deliver high-quality, scalable solutions.
+                  Experienced Full Stack Software Engineer with 5+ years of delivering high-impact solutions for diverse industries. Proven track record of architecting scalable systems, leading technical migrations, and implementing AI-powered features that drive measurable business results. Successfully reduced operational costs by 60-70%, improved user engagement by 40-45%. Expert at identifying performance bottlenecks and implementing optimizations that significantly enhance user experience. Passionate about mentoring teams, establishing best practices, and transforming complex business requirements into elegant technical solutions that scale.
                 </p>
               </AnimatedText>
               
               <AnimatedText delay={0.6}>
                 <div className="flex flex-wrap gap-3 mt-4">
+                  <span className="tech-item">AI/ML Integration Specialist</span>
+                  <span className="tech-item">Microservices Architect</span>
+                  <span className="tech-item">Team Leader & Mentor</span>
                   <span className="tech-item">Problem Solver</span>
                   <span className="tech-item">Clean Code Advocate</span>
                   <span className="tech-item">Continuous Learner</span>

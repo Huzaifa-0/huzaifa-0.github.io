@@ -17,11 +17,12 @@ const experienceData: ExperienceItem[] = [
     location: "Dubai",
     period: "February 2023 — Present",
     achievements: [
-      "Integrated Meilisearch for advanced search, reducing query times significantly",
-      "Implemented custom Mapbox maps with dynamic clusters for enhanced UX",
-      "Optimized performance with Redis caching and SQL tuning",
-      "Migrated SOAP to REST APIs, improved Sphinx performance by 60%",
-      "Boosted SEO scores by 20% through performance optimization"
+      "Led NestJS migration from Express.js with zero downtime, reducing runtime errors by 75%",
+      "Architected AI-powered systems: collaborative filtering recommendations (+45% engagement), scam detection (92% accuracy), content moderation (95%+ accuracy)",
+      "Built microservices with FastAPI and Redis Pub/Sub, achieving <500ms real-time communication",
+      "Implemented Redis Vector Search with Hugging Face transformers, improving match relevance by 65%",
+      "Integrated Meilisearch and Mapbox clusters, optimized performance with Redis caching reducing costs by 60%",
+      "Upgraded Node.js (v12→v22) and Sphinx (v2.2→v3.0), improving search performance significantly"
     ]
   },
   {
@@ -30,20 +31,38 @@ const experienceData: ExperienceItem[] = [
     location: "Dubai",
     period: "August 2022 — February 2023",
     achievements: [
-      "Refactored jQuery architecture, improving form load times",
-      "Built event-driven web app with Laravel Pusher and FCM notifications"
+      "Revamped legacy ERP to scalable NestJS architecture with modern authentication and validation",
+      "Integrated multi-gateway payment systems (Stripe, PayPal, French banking APIs) with webhook management",
+      "Built real-time Socket.io chat and automated cron jobs reducing manual operations",
+      "Refactored database architecture with proper indexing, improving query performance"
     ]
   },
   {
     title: "Full-Stack Developer",
     company: "HET",
     location: "Istanbul",
-    period: "March 2021 — April 2022",
+    period: "March 2020 — April 2022",
     achievements: [
-      "Developed custom dashboards with Laravel Nova",
-      "Enhanced UI with jQuery for better user engagement",
-      "Automated email and push notifications with queued jobs",
-      "Optimized SQL queries, cutting load times by 35%"
+      "Built multiple CMS platforms using Laravel Nova for non-technical users",
+      "Implemented background job processing and cron-based automation for notifications and system tasks, increasing user re-engagement by approximately 40%",
+      "Developed role-based access systems with JWT authentication and secure reporting workflows",
+      "Optimized database schemas and queries with proper indexing, cutting load times by 35%",
+      "Integrated payment gateways (Stripe webhooks) and SEO enhancements improving search rankings"
+    ]
+  },
+  {
+    title: "Java Backend Developer Intern",
+    company: "Enoca",
+    location: "Ankara/Karabük",
+    period: "June 2019 —  September 2019",
+    achievements: [
+      "Developed custom Java plugins using Spring Framework integrated into SAP Hybris Commerce platform",
+      "Implemented custom business logic and services following SAP Hybris architecture patterns and Spring best practices",
+      "Built custom extensions and modules extending Hybris core functionality with Spring dependency injection",
+      "Worked with Hybris data models, services layer, and facades to deliver e-commerce functionalities",
+      "Collaborated with senior developers on product catalog management and order processing workflows",
+      "Participated in code reviews and gained hands-on experience with enterprise-level e-commerce systems",
+      "Contributed to improving platform stability through bug fixes and unit testing"
     ]
   }
 ];

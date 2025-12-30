@@ -2,11 +2,12 @@
   {
     "id": "1",
     "title": "LeParking",
+    "company": "DA Studio",
     "link": "https://www.theparking.eu/",
     "excerpt": "Multi-platform ads listing system with advanced search engine for cars, motors, properties, and automotive brands.",
     "description": "Ads listing platform aggregating content from popular sources into a single site using an advanced search engine. Multi-application project handling car ads, motors, properties, and specialized platforms for JLR group and Hyundai with integrated payment processing and CRM.",
     "imageUrl": "/images/parking.webp",
-    "technologies": ["PHP", "MySQL", "jQuery", "Stripe API", "Monday CRM", "Sphinx", "Twig", "Memcached"],
+    "technologies": ["Core PHP", "MySQL", "jQuery", "Stripe", "Webhook", "Monday CRM", "Sphinx", "Twig", "Memcached", "Symfony", "GraphQL", "YouTube API"],
     "role": "Lead Developer",
     "tasks": [
       "Integrated external services through APIs (insurance flash quotation, Deepl translation, Monday CRM, YouTube)",
@@ -41,214 +42,179 @@
   },
   {
     "id": "2",
-    "title": "White Alert",
-    "link": "https://avocat.white-alert.com",
-    "excerpt": "Anonymous alert system for reporting staff misconduct with secure lawyer communication.",
-    "description": "Anonymous alert system designed for reporting staff misconduct, featuring secure communication channels between reporters and lawyers. The platform ensures confidentiality while providing proper request/response management in a chat-like interface.",
-    "imageUrl": "/images/white_alert.webp",
-    "technologies": ["Laravel", "MySQL", "jQuery", "Bootstrap", "Docker"],
-    "role": "Full Stack Developer",
+    "title": "Monlogement",
+    "link": "https://monlogement.com/",
+    "company": "DA Studio",
+    "excerpt": "French property listing platform with AI-powered recommendations, scam detection, and advanced search capabilities.",
+    "description": "Advanced property listing platform for France featuring complex search capabilities across cities, departments, postal codes, and regions. Utilizes Meilisearch for fast filtering, Mapbox for interactive maps with custom clusters, automated data importing from agency FTP systems, AI-powered recommendation system using collaborative filtering, and intelligent scam detection for imported listings.",
+    "imageUrl": "/images/monlogement.webp",
+    "technologies": ["Laravel", "Tailwind CSS", "Meilisearch", "Mapbox", "MySQL", "Redis Pub/Sub", "FTP", "AWS", "FastAPI", "fast.ai"],
+    "role": "Lead Developer and AI Integration Architect",
     "tasks": [
-      "Enhanced UI/UX design for better user experience",
-      "Implemented TOTP (Time-based One-Time Password) authentication",
-      "Created request/response management system for lawyer-staff communication",
-      "Productized the project for multi-client deployment",
-      "Unified styling using CSS variables for consistency"
+      "Implemented Meilisearch for complex search and filtration of French administrative areas",
+      "Integrated Mapbox with custom clusters and popups for interactive property visualization",
+      "Imported and cleaned GeoJSON data for France area borders using GIS tools",
+      "Created dynamic multi-step property ad creation form with validation",
+      "Built custom image upload functionality with drag-and-drop interface",
+      "Integrated Scaleway TEM API and SMTP for reliable email delivery",
+      "Implemented queued jobs for asynchronous email sending",
+      "Connected to Digital Ocean Spaces for scalable image storage",
+      "Deployed through Laravel Forge with custom server configuration",
+      "Created bash scripts for database backup and restoration automation",
+      "Added Meilisearch as system service in server for persistent operation",
+      "Developed FastAPI microservice for AI-powered recommendation engine",
+      "Implemented collaborative filtering using fast.ai for personalized property recommendations",
+      "Built automated scam detection system analyzing FTP imported ads",
+      "Established Redis Pub/Sub communication between Laravel, FTP import service, and FastAPI",
+      "Created machine learning pipeline for detecting fraudulent listings patterns"
     ],
     "achievements": [
-      "Successfully implemented different user management roles and dashboards",
-      "Created separate authentication methods for clients, staff, and lawyers",
-      "Built secure, anonymous reporting system maintaining user privacy"
+      "Implemented Redis caching and Pub/Sub improving performance significantly",
+      "Optimized database queries avoiding N+1 lazy loading issues across the platform",
+      "Created automated alert system based on user search criteria with cron jobs",
+      "Optimized image sizes on upload reducing storage costs by 60%",
+      "Implemented FTP ads importing from agency file systems using optimized jobs with middleware",
+      "Improved query performance using Laravel Debug Bar and Telescope",
+      "Deployed AI recommendation system increasing user engagement by 45%",
+      "Achieved 92% accuracy in scam detection protecting users from fraudulent listings",
+      "Built real-time communication architecture using Redis Pub/Sub between 3 services",
+      "Reduced manual moderation workload by 70% through automated scam detection",
+      "Implemented collaborative filtering recommending properties with 35% click-through rate"
     ],
     "contributions": [
-      "Developed chat-like conversation interface for alert handling",
-      "Implemented role-based access control for different user types",
-      "Created Docker containerization for easy deployment"
+      "Implemented DTO pattern for input transfer and sanitization across services",
+      "Created global helper functions autoloaded through Composer for code reusability",
+      "Built Services layer for shared logic between web and API endpoints",
+      "Used model event observers for cleaner code architecture and separation of concerns",
+      "Implemented API resources and form requests for custom validations",
+      "Managed user preferences and filter states with sessions for personalized experience",
+      "Refactored code and restructured filesystem for better maintainability",
+      "Architected microservices ecosystem with Laravel (main app), Python FTP importer, and FastAPI AI service",
+      "Designed Redis Pub/Sub messaging patterns for asynchronous service communication",
+      "Built collaborative filtering recommendation model using fast.ai analyzing user interactions",
+      "Developed scam detection ML model identifying fraudulent patterns in property listings",
+      "Created data preprocessing pipeline for training recommendation and fraud detection models",
+      "Implemented real-time property recommendations based on user behavior and preferences",
+      "Built automated flagging system for suspicious ads from FTP imports with confidence scores",
+      "Integrated FastAPI service handling both recommendations and scam detection with shared infrastructure",
+      "Established monitoring and logging for microservices communication and AI model performance"
     ]
   },
   {
     "id": "3",
-    "title": "CatBox",
-    "link": "https://catbox.ae/",
-    "excerpt": "Subscription-based service delivering surprise cat-related boxes to subscribers.",
-    "description": "E-commerce subscription platform offering curated surprise boxes with cat-related products. Features recurring payment processing, subscription management, and an admin dashboard for content and order management.",
-    "imageUrl": "/images/catBox.webp",
-    "technologies": ["Laravel", "MySQL", "jQuery", "Tailwind CSS", "Stripe API", "Filament"],
-    "role": "Backend Developer",
+    "title": "Blindlove",
+    "link": "https://www.blindlove.io/",
+    "company": "DA Studio",
+    "excerpt": "Anonymous dating application with AI-powered intelligent matching using vector embeddings and semantic user profiling.",
+    "description": "Innovative dating platform featuring an advanced anonymous matching algorithm powered by AI vector embeddings and semantic analysis. Uses Redis Vector Search with Hugging Face transformers for intelligent user profile tokenization and similarity matching. Built with real-time communication capabilities, multi-language support, and scalable architecture using Node.js clustering and Redis Stack for high-performance operations.",
+    "imageUrl": "/images/blindLove.webp",
+    "technologies": ["NestJS", "Socket.io", "MongoDB", "SSE", "Redis Stack", "Redis Vector Search", "Hugging Face Transformers", "AWS", "JWT", "React.js", "Python"],
+    "role": "Lead Backend Developer and AI Architect",
     "tasks": [
-      "Integrated Stripe payment gateway for subscription processing",
-      "Stored invoices and subscription IDs in database",
-      "Implemented SEO enhancements across the platform",
-      "Created XML sitemap for better search engine indexing",
-      "Built comprehensive dashboard using Filament"
+      "Implemented advanced matching algorithm with pooling based on general filtration using weighted preferences",
+      "Applied cosine similarity and bitmap interests for match scoring",
+      "Integrated Redis Vector Search (RediSearch) for semantic user profile matching",
+      "Implemented user profile tokenization using Hugging Face sentence transformers",
+      "Built vector embedding pipeline converting user profiles, interests, and bios into searchable embeddings",
+      "Created shared/utils services module for code reusability across the application",
+      "Implemented event listening for service/module decoupling and maintainability",
+      "Built comprehensive multi-language module with custom interceptor, decorator, and localization service",
+      "Integrated i18n module for static translation files management",
+      "Developed multi-language push notification system with notification groups in single API service",
+      "Managed match requests using Redis queue list type for efficient processing",
+      "Stored top matches in Redis using sorted lists and vector similarity scores for fast retrieval",
+      "Built chat media optimization service for image/video processing and delivery",
+      "Developed vector search API for semantic profile matching and similarity queries",
+      "Building Admin panel APIs for user, content, and report management"
     ],
     "achievements": [
-      "Successfully implemented recurring subscription payment system",
-      "Enhanced SEO resulting in improved search rankings",
-      "Created efficient admin panel for subscription management"
+      "Implemented single socket connection per user management preventing duplicate connections",
+      "Deployed Node.js cluster mode for horizontal scaling across multiple CPU cores",
+      "Configured Socket.io Redis adapter for cluster mode synchronization",
+      "Built SSE (Server-Sent Events) for general notifications with custom heartbeat and connection pooling",
+      "Optimized MongoDB aggregation pipelines with proper indexing and subdocuments to minimize lookups",
+      "Implemented patch writes in MongoDB for efficient partial updates",
+      "Created custom JWT guard with Passport including token blacklisting functionality",
+      "Handled cron jobs on single process using Redis distributed locks to prevent duplicate execution",
+      "Implemented data virtualization for admin panel using aggregated queries and pagination",
+      "Deployed Redis Vector Search achieving <50ms semantic matching queries at scale",
+      "Integrated Hugging Face models for profile embeddings improving match quality by 40%",
+      "Built hybrid matching system combining traditional filtering with AI-powered semantic similarity",
+      "Achieved 65% improvement in match relevance using vector embeddings vs traditional methods",
+      "Optimized vector indexing strategy handling 100K+ user profiles with sub-second search times"
     ],
     "contributions": [
-      "Designed database schema for subscription and invoice management",
-      "Implemented webhook handlers for Stripe events",
-      "Optimized database queries for subscription tracking"
+      "Adhered to TypeScript best practices using interfaces and type aliases throughout codebase",
+      "Implemented custom Redis service extending Redis IO for enhanced functionality including vector operations",
+      "Designed event-driven architecture for better service decoupling and maintainability",
+      "Created efficient Redis transport functionality for real-time features",
+      "Built scalable matching system handling high concurrent users with AI-powered recommendations",
+      "Implemented comprehensive multi-language support at all application layers",
+      "Optimized database queries and data structures for performance at scale",
+      "Designed robust real-time communication infrastructure with fallback mechanisms",
+      "Architected vector search integration using Redis Stack for semantic user matching",
+      "Implemented user profile tokenization pipeline using Hugging Face sentence-transformers",
+      "Built vector embedding generation service processing user bios, interests, and preferences",
+      "Created hybrid matching algorithm combining weighted preferences, cosine similarity, and vector search",
+      "Designed efficient vector indexing schema in Redis for fast K-nearest neighbor queries",
+      "Integrated HNSW (Hierarchical Navigable Small World) algorithm for approximate nearest neighbor search",
+      "Built automated reindexing pipeline updating user embeddings on profile changes",
+      "Implemented semantic similarity scoring combining traditional metrics with embedding distances",
+      "Created A/B testing framework comparing traditional vs AI-powered matching performance",
+      "Optimized embedding model selection balancing accuracy vs inference speed for production use"
     ]
   },
   {
     "id": "4",
-    "title": "Art Jameel",
-    "link": "https://artjameel.org/",
-    "excerpt": "Art events and artist listing platform for Ajman Art Department.",
-    "description": "Cultural platform showcasing art events and artist profiles for the Ajman Art Department. Features multi-language support and a comprehensive content management system for curators and administrators.",
-    "imageUrl": "/images/art_jameel.webp",
-    "technologies": ["Laravel", "MySQL", "Filament"],
-    "role": "Backend Developer",
+    "title": "Roomco",
+    "link": "https://www.roomco.com/en/",
+    "company": "DA Studio",
+    "excerpt": "Social and chatting application for young people with AI chatbot integration and content moderation.",
+    "description": "Real-time social networking and messaging platform designed for young users. Features WebSocket-based chat, AI-powered chatbots using ChatGPT API, multi-language support with image generation capabilities, and content safety through AI-powered nudity detection.",
+    "imageUrl": "/images/roomco.webp",
+    "technologies": ["NestJS", "TypeScript", "Socket.io", "MongoDB", "ChatGPT API", "FastAPI", "fast.ai", "Redis Pub/Sub"],
+    "role": "Lead Developer and Migration Architect",
     "tasks": [
-      "Built admin/content management dashboard using Filament",
-      "Participated in database design and architecture",
-      "Implemented multi-language support at database level",
-      "Implementing Typesense for advanced search capabilities"
+      "Led complete migration from Express.js to NestJS with TypeScript",
+      "Architected and supervised migration strategy across development team",
+      "Participated in server migration to more efficient infrastructure",
+      "Upgraded Node.js version from 12 to 22 with comprehensive testing",
+      "Created chatbots using ChatGPT SSE API with streaming responses",
+      "Managed multi-language bot responses using JSON schema validation",
+      "Integrated ChatGPT API for image generation in chatbots",
+      "Developed nudity detection service using fast.ai deployed on external server",
+      "Implemented FastAPI microservice for real-time image moderation",
+      "Established Redis Pub/Sub communication between NestJS and FastAPI services",
+      "Created comprehensive migration documentation and training materials"
     ],
     "achievements": [
-      "Created user-friendly CMS for non-technical content managers",
-      "Successfully implemented multi-language content structure",
-      "Delivered scalable solution for growing event catalog",
-      "Improved search speed and relevance for users with Typesense multi-search and AI semantic search"
+      "Successfully migrated entire codebase from Express.js to NestJS with zero downtime",
+      "Implemented type-safe architecture reducing runtime errors by 75%",
+      "Upgraded Node.js across 10 major versions without breaking changes",
+      "Improved server performance and code maintainability through modern architecture",
+      "Deployed AI-powered content moderation system protecting young users",
+      "Achieved real-time image scanning with <500ms response time using Redis Pub/Sub",
+      "Implemented AI chatbot increasing user engagement by 40%",
+      "Created scalable microservices architecture supporting independent scaling"
     ],
     "contributions": [
-      "Designed efficient database relationships for events and artists",
-      "Implemented language localization strategy",
-      "Created intuitive admin interface for content management"
+      "Architected migration plan from Express.js to NestJS with TypeScript",
+      "Supervised development team through migration process with regular code reviews",
+      "Designed and documented microservices architecture for content moderation",
+      "Built fast.ai-based nudity detection model with 95%+ accuracy",
+      "Implemented FastAPI service for high-performance image processing",
+      "Established Redis Pub/Sub messaging pattern for inter-service communication",
+      "Created comprehensive migration guide documenting patterns and best practices",
+      "Provided mentorship and training on NestJS, TypeScript, and microservices",
+      "Implemented streaming responses for real-time AI interactions",
+      "Developed multi-language support system for chatbot responses with type safety"
     ]
   },
   {
     "id": "5",
-    "title": "L'Oréal Beauty Contest",
-    "link": "https://beautycreatorclub.event-loreal.com",
-    "excerpt": "Landing page and management system for L'Oréal beauty contest with analytics.",
-    "description": "Contest management platform for L'Oréal beauty events, featuring participant registration, content submission, and comprehensive analytics dashboard for tracking engagement and submissions.",
-    "imageUrl": "/images/loreal.webp",
-    "technologies": ["Laravel", "MySQL", "Filament"],
-    "role": "Backend Developer",
-    "tasks": [
-      "Built admin/content management dashboard using Filament",
-      "Integrated analytics tracking and reporting",
-      "Implemented participant management system"
-    ],
-    "achievements": [
-      "Created comprehensive analytics dashboard for campaign tracking",
-      "Successfully handled high-traffic contest period",
-      "Delivered real-time reporting for marketing team"
-    ],
-    "contributions": [
-      "Designed database schema for contest entries and voting",
-      "Implemented secure file upload for submissions",
-      "Created custom analytics queries for campaign insights"
-    ]
-  },
-  {
-    "id": "6",
-    "title": "Roomco",
-    "link": "https://www.roomco.com/en/",
-    "excerpt": "Social and chatting application for young people with AI chatbot integration.",
-    "description": "Real-time social networking and messaging platform designed for young users. Features WebSocket-based chat, AI-powered chatbots using ChatGPT API, and multi-language support with image generation capabilities.",
-    "imageUrl": "/images/roomco.webp",
-    "technologies": ["Express.js", "Socket.io", "MongoDB", "ChatGPT API"],
-    "role": "Reviewer and Support",
-    "tasks": [
-      "Participated in server migration to more efficient infrastructure",
-      "Assisted with code revamping and refactoring strategy",
-      "Upgraded Node.js version from 12 to 22",
-      "Created chatbots using ChatGPT SSE API",
-      "Managed multi-language bot responses using JSON schema",
-      "Integrated ChatGPT API for image generation in chatbots"
-    ],
-    "achievements": [
-      "Successfully upgraded Node.js across 10 major versions without breaking changes",
-      "Improved server performance through infrastructure optimization",
-      "Implemented AI chatbot increasing user engagement"
-    ],
-    "contributions": [
-      "Provided code review and refactoring recommendations",
-      "Implemented streaming responses for real-time AI interactions",
-      "Created multi-language support system for chatbot responses"
-    ]
-  },
-  {
-    "id": "7",
-    "title": "IMC",
-    "link": null,
-    "excerpt": "Service request management system connecting clients with technicians for device repairs.",
-    "description": "Comprehensive service management platform connecting clients with technicians for device repairs. Features three separate dashboards (client, technician, super admin) with real-time location tracking, task management, and automated scheduling to prevent appointment overlaps.",
-    "imageUrl": "https://images.unsplash.com/photo-1581092160562-40aa08e78837",
-    "technologies": ["Laravel", "Bootstrap", "jQuery", "MySQL", "Pusher"],
-    "role": "Full Stack Developer",
-    "tasks": [
-      "Developed API resources for request creation, status tracking, and report generation",
-      "Created custom filtration for technician tasks and search functionality",
-      "Implemented three-tier user access control with specific role permissions",
-      "Built real-time location tracking for technician dispatch",
-      "Created time slot management system preventing overlapping appointments",
-      "Developed multi-form module based on user task selection",
-      "Implemented real-time notifications for task status updates",
-      "Created statistical reports for web and mobile dashboards"
-    ],
-    "achievements": [
-      "Implemented hierarchical role system (team leader managing multiple technicians)",
-      "Created real-time GPS tracking system for service optimization",
-      "Built dynamic form system adapting to different service types",
-      "Delivered mobile and web APIs for cross-platform support"
-    ],
-    "contributions": [
-      "Designed role-based access control architecture",
-      "Implemented WebSocket integration for real-time updates",
-      "Created intelligent scheduling algorithm preventing conflicts",
-      "Built comprehensive reporting system for performance analytics"
-    ]
-  },
-  {
-    "id": "8",
-    "title": "Monlogement",
-    "link": "https://monlogement.com/",
-    "excerpt": "French property listing platform with advanced search using Meilisearch and Mapbox integration.",
-    "description": "Advanced property listing platform for France featuring complex search capabilities across cities, departments, postal codes, and regions. Utilizes Meilisearch for fast filtering, Mapbox for interactive maps with custom clusters, and automated data importing from agency FTP systems.",
-    "imageUrl": "/images/monlogement.webp",
-    "technologies": ["Laravel", "Tailwind CSS", "Meilisearch", "Mapbox", "MySQL", "Redis", "FTP", "S3"],
-    "role": "Lead Developer",
-    "tasks": [
-      "Implemented Meilisearch for complex search and filtration of French administrative areas",
-      "Integrated Mapbox with custom clusters and popups",
-      "Imported and cleaned GeoJSON data for France area borders using GIS tools",
-      "Created dynamic multi-step property ad creation form",
-      "Built custom image upload functionality with drag-and-drop",
-      "Integrated Scaleway TEM API and SMTP for email delivery",
-      "Implemented queued jobs for email sending",
-      "Connected to Digital Ocean Spaces for image storage",
-      "Deployed through Laravel Forge with custom server configuration",
-      "Created bash scripts for database backup and restoration automation",
-      "Added Meilisearch as system service in server"
-    ],
-    "achievements": [
-      "Implemented Redis caching improving performance significantly",
-      "Optimized database queries avoiding N+1 lazy loading issues",
-      "Created automated alert system based on user search criteria with cron jobs",
-      "Optimized image sizes on upload reducing storage costs",
-      "Implemented FTP ads importing from agency file systems using optimized jobs with middleware",
-      "Improved query performance using Laravel Debug Bar and Telescope"
-    ],
-    "contributions": [
-      "Implemented DTO pattern for input transfer and sanitization",
-      "Created global helper functions autoloaded through Composer",
-      "Built Services layer for shared logic between web and API",
-      "Used model event observers for cleaner code architecture",
-      "Implemented API resources and form requests for custom validations",
-      "Managed user preferences and filter states with sessions",
-      "Refactored code and restructured filesystem for better maintainability"
-    ]
-  },
-  {
-    "id": "9",
     "title": "Chloride",
     "link": "https://www.chloride.com/home",
+    "company": "IT FAQ",
     "excerpt": "Products and services listing with news, blogs, and careers using Strapi CMS.",
     "description": "Corporate website for Chloride featuring products, services, news, blogs, and career opportunities. Built with headless CMS (Strapi) and React/Next.js frontend, featuring role-based authentication, multi-language support, and advanced search capabilities.",
     "imageUrl": "/images/chloride.webp",
@@ -278,9 +244,246 @@
     ]
   },
   {
+    "id": "6",
+    "title": "Facilitatator",
+    "link": null,
+    "company": "IT FAQ",
+    "excerpt": "Multi-category service provider platform with real-time chat targeting French audience.",
+    "description": "Service provider marketplace platform offering multiple service categories with integrated real-time chat functionality between service providers and clients. Built specifically for the French market with local payment gateway integrations and comprehensive subscription management.",
+    "imageUrl": "https://images.unsplash.com/photo-1556761175-b413da4baf72",
+    "technologies": ["NestJS", "PostgreSQL", "Socket.io", "Stripe API", "PayPal API", "React.js"],
+    "role": "Backend Developer",
+    "tasks": [
+      "Revamped legacy ERP platform APIs into modern NestJS architecture",
+      "Created custom validation pipelines for complex DTO structures",
+      "Refactored authentication system using NestJS guards and strategies",
+      "Implemented scheduled cron jobs for database cleanup operations",
+      "Built automated user status checking and notification system",
+      "Integrated Stripe and PayPal payment gateways",
+      "Integrated French banking APIs for local payment processing",
+      "Developed real-time chat system using Socket.io",
+      "Implemented full-text search functionality across platform",
+      "Redesigned database table relationships for better performance",
+      "Design Admin panel APIs for managing users, services, and subscriptions with role-based access control"
+    ],
+    "achievements": [
+      "Successfully migrated legacy ERP APIs to scalable NestJS architecture",
+      "Implemented multi-gateway payment system supporting Stripe, PayPal, and French banking APIs",
+      "Built robust webhook handling for Stripe and PayPal subscription management",
+      "Created automated maintenance system with scheduled cron jobs reducing manual operations",
+      "Delivered real-time bidirectional communication between service providers and clients",
+      "Optimized database schema improving query performance and data integrity",
+      "Data virtualization and reporting for admin panel using aggregated queries"
+    ],
+    "contributions": [
+      "Designed and implemented custom validation decorators for complex business logic",
+      "Architected authentication flow using JWT with refresh token strategy",
+      "Built scalable Socket.io infrastructure for real-time messaging",
+      "Implemented comprehensive webhook event handlers for payment lifecycle management",
+      "Created efficient full-text search indexes for improved search performance",
+      "Developed automated notification system for user engagement and retention",
+      "Refactored database relationships using proper foreign keys and indexes",
+      "Implemented error handling and logging strategies for production stability"
+    ]
+  },
+  {
+    "id": "7",
+    "title": "Art Jameel",
+    "company": "DA Studio",
+    "link": "https://artjameel.org/",
+    "excerpt": "Art events and artist listing platform for Ajman Art Department.",
+    "description": "Cultural platform showcasing art events and artist profiles for the Ajman Art Department. Features multi-language support and a comprehensive content management system for curators and administrators.",
+    "imageUrl": "/images/art_jameel.webp",
+    "technologies": ["Laravel", "MySQL", "Filament", "Livewire", "Typesense"],
+    "role": "Backend Developer",
+    "tasks": [
+      "Built admin/content management dashboard using Filament",
+      "Participated in database design and architecture",
+      "Implemented multi-language support at database level",
+      "Implementing Typesense for advanced search capabilities"
+    ],
+    "achievements": [
+      "Created user-friendly CMS for non-technical content managers",
+      "Successfully implemented multi-language content structure",
+      "Delivered scalable solution for growing event catalog",
+      "Improved search speed and relevance for users with Typesense multi-search and AI semantic search"
+    ],
+    "contributions": [
+      "Designed efficient database relationships for events and artists",
+      "Implemented language localization strategy",
+      "Created intuitive admin interface for content management"
+    ]
+  },
+  {
+    "id": "8",
+    "title": "White Alert",
+    "company": "DA Studio",
+    "link": "https://avocat.white-alert.com",
+    "excerpt": "Anonymous alert system for reporting staff misconduct with secure lawyer communication.",
+    "description": "Anonymous alert system designed for reporting staff misconduct, featuring secure communication channels between reporters and lawyers. The platform ensures confidentiality while providing proper request/response management in a chat-like interface.",
+    "imageUrl": "/images/white_alert.webp",
+    "technologies": ["Laravel", "MySQL", "jQuery", "Bootstrap", "Docker"],
+    "role": "Full Stack Developer",
+    "tasks": [
+      "Enhanced UI/UX design for better user experience",
+      "Implemented TOTP (Time-based One-Time Password) authentication",
+      "Created request/response management system for lawyer-staff communication",
+      "Productized the project for multi-client deployment",
+      "Unified styling using CSS variables for consistency"
+    ],
+    "achievements": [
+      "Successfully implemented different user management roles and dashboards",
+      "Created separate authentication methods for clients, staff, and lawyers",
+      "Built secure, anonymous reporting system maintaining user privacy"
+    ],
+    "contributions": [
+      "Developed chat-like conversation interface for alert handling",
+      "Implemented role-based access control for different user types",
+      "Created Docker containerization for easy deployment"
+    ]
+  },
+  {
+    "id": "9",
+    "title": "CatBox",
+    "company": "DA Studio",
+    "link": "https://catbox.ae/",
+    "excerpt": "Subscription-based service delivering surprise cat-related boxes to subscribers.",
+    "description": "E-commerce subscription platform offering curated surprise boxes with cat-related products. Features recurring payment processing, subscription management, and an admin dashboard for content and order management.",
+    "imageUrl": "/images/catBox.webp",
+    "technologies": ["Laravel", "MySQL", "Alpine.js", "Tailwind CSS", "Stripe API", "Filament", "Livewire"],
+    "role": "Backend Developer",
+    "tasks": [
+      "Integrated Stripe payment gateway for subscription processing",
+      "Stored invoices and subscription IDs in database",
+      "Implemented SEO enhancements across the platform",
+      "Created XML sitemap for better search engine indexing",
+      "Built comprehensive dashboard using Filament",
+      "Implementing Sign-in with magic link functionality"
+    ],
+    "achievements": [
+      "Successfully implemented recurring subscription payment system",
+      "Enhanced SEO resulting in improved search rankings",
+      "Created efficient admin panel for subscription management"
+    ],
+    "contributions": [
+      "Designed database schema for subscription and invoice management",
+      "Implemented webhook handlers for Stripe events",
+      "Optimized database queries for subscription tracking"
+    ]
+  },
+  {
     "id": "10",
+    "title": "DA Studio",
+    "company": "DA Studio",
+    "link": "https://dubaiappstudio.ae/",
+    "excerpt": "Corporate website for creative agency specializing in mobile app and web development with optimized performance.",
+    "description": "Corporate website for DA Studio, an independent creative agency offering mobile app development, web development, and UI/UX design services. Features portfolio showcase, service pages, client testimonials, and contact forms. Underwent comprehensive performance optimization achieving significant improvements in PageSpeed Insights scores through image optimization, animation enhancements, and technical SEO improvements.",
+    "imageUrl": "/images/da_studio.webp",
+    "technologies": ["Laravel", "Blade", "jQuery", "MySQL", "JavaScript Animation", "htaccess"],
+    "role": "Full Stack Developer",
+    "tasks": [
+      "Improved PageSpeed Insights scores through comprehensive performance optimization",
+      "Converted all images to WebP format with appropriate scaling for different viewports",
+      "Optimized JavaScript and CSS animations for smoother performance",
+      "Reduced layout shift implementing lazy loading for images and scripts",
+      "Configured local loading for fonts and jQuery eliminating external dependencies",
+      "Added noscript tags for default behavior with external scripts",
+      "Created properly structured XML sitemap for search engine crawling",
+      "Implemented Open Graph and social media meta tags for better sharing",
+      "Resolved redirect chains and canonical link issues",
+      "Improved htaccess configuration with caching rules and www to non-www redirects",
+      "Revamped CSS styles removing unused code and inlining critical styles",
+      "Enhanced email delivery through proper DNS record configuration (SPF, DKIM, DMARC)",
+      "Optimized meta descriptions and keywords for better SEO",
+      "Added JSON-LD structured data for rich search results",
+      "Upgraded jQuery to latest version using jQuery Migrate tool",
+      "Improved mobile responsiveness across all pages",
+      "Minimized animations on mobile view for better performance"
+    ],
+    "achievements": [
+      "Significantly improved PageSpeed Insights scores through systematic optimization",
+      "Reduced page load times with WebP image format and optimized assets",
+      "Enhanced SEO visibility through structured data, proper meta tags, and sitemap",
+      "Improved mobile user experience with responsive design and optimized animations",
+      "Eliminated layout shifts achieving better Core Web Vitals scores",
+      "Successfully upgraded jQuery without breaking existing functionality",
+      "Improved email deliverability through proper DNS configuration"
+    ],
+    "contributions": [
+      "Implemented comprehensive performance optimization strategy",
+      "Created efficient caching and redirect rules in htaccess",
+      "Removed unused CSS reducing stylesheet size significantly",
+      "Implemented critical CSS inlining for faster first contentful paint",
+      "Configured lazy loading strategy for images and non-critical scripts",
+      "Added structured data markup for enhanced search engine understanding",
+      "Optimized asset delivery with local font and library hosting",
+      "Enhanced mobile experience with responsive design and performance considerations"
+    ]
+  },
+  {
+    "id": "11",
+    "title": "L'Oréal Beauty Contest",
+    "company": "DA Studio",
+    "link": "https://beautycreatorclub.event-loreal.com",
+    "excerpt": "Landing page and management system for L'Oréal beauty contest with analytics.",
+    "description": "Contest management platform for L'Oréal beauty events, featuring participant registration, content submission, and comprehensive analytics dashboard for tracking engagement and submissions.",
+    "imageUrl": "/images/loreal.webp",
+    "technologies": ["Laravel", "MySQL", "Filament"],
+    "role": "Backend Developer",
+    "tasks": [
+      "Built admin/content management dashboard using Filament",
+      "Integrated analytics tracking and reporting",
+      "Implemented participant management system"
+    ],
+    "achievements": [
+      "Created comprehensive analytics dashboard for campaign tracking",
+      "Successfully handled high-traffic contest period",
+      "Delivered real-time reporting for marketing team"
+    ],
+    "contributions": [
+      "Designed database schema for contest entries and voting",
+      "Implemented secure file upload for submissions",
+      "Created custom analytics queries for campaign insights"
+    ]
+  },
+  {
+    "id": "12",
+    "title": "IMC",
+    "link": null,
+    "company": "IT FAQ",
+    "excerpt": "Service request management system connecting clients with technicians for device repairs.",
+    "description": "Comprehensive service management platform connecting clients with technicians for device repairs. Features three separate dashboards (client, technician, super admin) with real-time location tracking, task management, and automated scheduling to prevent appointment overlaps.",
+    "imageUrl": "https://images.unsplash.com/photo-1581092160562-40aa08e78837",
+    "technologies": ["Laravel", "Vue.js", "Vuetify", "MySQL", "Pusher"],
+    "role": "Full Stack Developer",
+    "tasks": [
+      "Developed API resources for request creation, status tracking, and report generation",
+      "Created custom filtration for technician tasks and search functionality",
+      "Implemented three-tier user access control with specific role permissions",
+      "Built real-time location tracking for technician dispatch",
+      "Created time slot management system preventing overlapping appointments",
+      "Developed multi-form module based on user task selection",
+      "Implemented real-time notifications for task status updates",
+      "Created statistical reports for web and mobile dashboards"
+    ],
+    "achievements": [
+      "Implemented hierarchical role system (team leader managing multiple technicians)",
+      "Created real-time GPS tracking system for service optimization",
+      "Built dynamic form system adapting to different service types",
+      "Delivered mobile and web APIs for cross-platform support"
+    ],
+    "contributions": [
+      "Designed role-based access control architecture",
+      "Implemented WebSocket integration for real-time updates",
+      "Created intelligent scheduling algorithm preventing conflicts",
+      "Built comprehensive reporting system for performance analytics"
+    ]
+  },
+  {
+    "id": "13",
     "title": "Seen",
     "link": null,
+    "company": "IT FAQ",
     "excerpt": "Multi-category service provider platform with subscription packages and real-time chat support.",
     "description": "Service marketplace platform offering multiple service categories with package-based pricing. Features real-time chat assistance, push notifications, subscription management with Stripe, and OTP-based phone verification for enhanced security.",
     "imageUrl": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d",
@@ -313,85 +516,87 @@
     ]
   },
   {
-    "id": "11",
-    "title": "Blindlove",
-    "link": "https://www.blindlove.io/",
-    "excerpt": "Anonymous dating application with intelligent matching algorithm based on preferences and interests.",
-    "description": "Innovative dating platform featuring an anonymous matching algorithm that uses weighted preferences, cosine similarity, and bitmap interests for optimal user matching. Built with real-time communication capabilities, multi-language support, and scalable architecture using Node.js clustering and Redis for high-performance operations.",
-    "imageUrl": "/images/blindLove.webp",
-    "technologies": ["NestJS", "Socket.io", "MongoDB", "SSE", "Redis", "S3", "Node.js Cluster", "Passport JWT"],
-    "role": "Lead Backend Developer",
+    "id": "14",
+    "title": "Another Tool",
+    "company": "DA Studio",
+    "link": null,
+    "excerpt": "Comprehensive AI tools directory with advanced search, affiliate program, and subscription management featuring automated screenshots and analytics.",
+    "description": "AI tools catalog platform featuring comprehensive search capabilities across titles, tags, and categories. Showcases featured AI tools with detailed pages including use cases, tutorials, advantages, and pricing information. Integrated affiliate program tracking clicks and conversions with subscription-based services. Built with modern Laravel ecosystem using Livewire for reactive components, Filament for admin dashboard, and automated landing page screenshots for visual presentation.",
+    "imageUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f",
+    "technologies": ["Laravel", "Filament", "Livewire", "Alpine.js", "Volt", "MySQL", "Blade Components"],
+    "role": "Full Stack Developer",
     "tasks": [
-        "Implemented matching algorithm with pooling based on general filtration using weighted preferences",
-        "Applied cosine similarity and bitmap interests for match scoring",
-        "Created shared/utils services module for code reusability",
-        "Implemented event listening for service/module decoupling",
-        "Built multi-language module with custom interceptor, decorator, and localization service",
-        "Integrated i18n module for static translation files",
-        "Developed multi-language push notification system with notification groups in single API service",
-        "Managed match requests using Redis queue list type",
-        "Stored top matches in Redis using sorted lists for fast retrieval",
-        "Built chat media optimization service for image/video processing"
+      "Implemented multi-faceted search system by title, tags, and categories with real-time filtering",
+      "Built keyword minimization feature using Livewire for smart search suggestions",
+      "Created featured tools flagging system for promotional display",
+      "Implemented infinite scrolling pagination using Livewire for seamless browsing",
+      "Utilized Volt with Livewire as single-file components for better code organization",
+      "Developed custom JavaScript animated hero section for engaging landing page",
+      "Built affiliate link tracking system with click detection and conversion reporting",
+      "Implemented Laravel event-driven architecture for affiliate tracking and analytics",
+      "Applied SEO best practices including meta tags, structured data, and lazy loading",
+      "Created XML sitemap with automatic indexing for search engine optimization",
+      "Built comprehensive Filament dashboard for content and affiliate member management",
+      "Implemented automated screenshot capture of tool landing pages on new tool addition",
+      "Developed analytics dashboard with data visualization for tracking performance",
+      "Created component-based Blade architecture for reusable UI elements"
     ],
     "achievements": [
-        "Implemented single socket connection per user management preventing duplicate connections",
-        "Deployed Node.js cluster mode for horizontal scaling",
-        "Configured Socket.io Redis adapter for cluster mode synchronization",
-        "Built SSE (Server-Sent Events) for general notifications with custom heartbeat and connection pooling",
-        "Optimized MongoDB aggregation pipelines with proper indexing and subdocuments to minimize lookups",
-        "Implemented patch writes in MongoDB for efficient partial updates",
-        "Created custom JWT guard with Passport including token blacklisting functionality",
-        "Handled cron jobs on single process using Redis distributed locks to prevent duplicate execution"
+      "Built reactive search experience with real-time filtering reducing search time significantly",
+      "Implemented automated screenshot system eliminating manual image collection workflow",
+      "Created comprehensive affiliate tracking system with detailed conversion analytics",
+      "Delivered SEO-optimized platform with proper meta tags and structured data",
+      "Built user-friendly Filament dashboard for non-technical content managers",
+      "Achieved smooth infinite scrolling with Livewire without page refreshes",
+      "Implemented data visualization dashboard providing actionable insights"
     ],
     "contributions": [
-        "Adhered to TypeScript best practices using interfaces and type aliases throughout codebase",
-        "Implemented custom Redis service extending Redis IO for enhanced functionality",
-        "Designed event-driven architecture for better service decoupling and maintainability",
-        "Created efficient Redis transport functionality for real-time features",
-        "Built scalable matching system handling high concurrent users",
-        "Implemented comprehensive multi-language support at all application layers",
-        "Optimized database queries and data structures for performance at scale",
-        "Designed robust real-time communication infrastructure with fallback mechanisms"
+      "Architected search system with multiple filtering criteria and smart suggestions",
+      "Designed event-driven affiliate tracking capturing clicks and conversions",
+      "Implemented Volt single-file components improving code maintainability",
+      "Built automated screenshot pipeline using headless browser integration",
+      "Created component-based Blade architecture for scalable UI development",
+      "Designed analytics system with visualization for affiliate performance tracking",
+      "Implemented lazy loading strategy optimizing page load performance",
+      "Built comprehensive admin panel with role-based access for content management"
     ]
   },
   {
-    "id": "12",
-    "title": "Facilitatator",
+    "id": "15",
+    "title": "Survey App for Corona Patients",
+    "company": "Freelance",
     "link": null,
-    "excerpt": "Multi-category service provider platform with real-time chat targeting French audience.",
-    "description": "Service provider marketplace platform offering multiple service categories with integrated real-time chat functionality between service providers and clients. Built specifically for the French market with local payment gateway integrations and comprehensive subscription management.",
-    "imageUrl": "https://images.unsplash.com/photo-1556761175-b413da4baf72",
-    "technologies": ["NestJS", "PostgreSQL", "Socket.io", "Stripe API", "PayPal API", "Cron Jobs"],
-    "role": "Backend Developer",
+    "excerpt": "React Native health surveillance platform integrated with Fitbit wearables to track bio-metrics and daily symptoms for COVID-19 research.",
+    "description": "A freelance medical research platform featuring a React Native mobile application integrated with Fitbit wearables. The system captures real-time biometric data and daily patient symptom surveys to provide a comprehensive dataset for the University of Sharjah (UOS). This data is aggregated into CSV reports to train AI models for higher accuracy in early-stage COVID-19 detection.",
+    "imageUrl": "https://images.unsplash.com/photo-1498050108023-c5249f4df085",
+    "technologies": ["React Native", "Express.js", "MongoDB", "Redis", "Socket.io", "Fitbit OAuth", "Node-Cron"],
+    "role": "Full Stack Developer",
     "tasks": [
-      "Revamped legacy ERP platform APIs into modern NestJS architecture",
-      "Created custom validation pipelines for complex DTO structures",
-      "Refactored authentication system using NestJS guards and strategies",
-      "Implemented scheduled cron jobs for database cleanup operations",
-      "Built automated user status checking and notification system",
-      "Integrated Stripe and PayPal payment gateways",
-      "Integrated French banking APIs for local payment processing",
-      "Developed real-time chat system using Socket.io",
-      "Implemented full-text search functionality across platform",
-      "Redesigned database table relationships for better performance"
+      "Developed a cross-platform React Native mobile application for patient data collection",
+      "Implemented Fitbit OAuth 2.0 integration for secure wearable device synchronization",
+      "Built a dynamic, multi-step survey system with conditional logic based on patient responses",
+      "Established a WebSocket connection via Socket.io for real-time biometric data streaming",
+      "Architected a high-performance data pipeline using Redis for temporary storage and Cron jobs for persistent DB batching",
+      "Implemented a notification system for daily survey reminders and device disconnection alerts",
+      "Developed a reporting engine to aggregate Fitbit and survey data into CSV format for research teams",
+      "Created a live biometric dashboard within the app for real-time health monitoring",
+      "Managed persistent storage of historical survey data for longitudinal patient tracking"
     ],
     "achievements": [
-      "Successfully migrated legacy ERP APIs to scalable NestJS architecture",
-      "Implemented multi-gateway payment system supporting Stripe, PayPal, and French banking APIs",
-      "Built robust webhook handling for Stripe and PayPal subscription management",
-      "Created automated maintenance system with scheduled cron jobs reducing manual operations",
-      "Delivered real-time bidirectional communication between service providers and clients",
-      "Optimized database schema improving query performance and data integrity"
+      "Successfully integrated real-time wearable telemetry with clinical survey data",
+      "Optimized database performance by implementing a Redis-to-MongoDB buffering strategy",
+      "Enabled large-scale data collection for UOS research group to improve AI model accuracy",
+      "Built a reactive UI that handles complex conditional survey flows seamlessly",
+      "Ensured high user engagement through automated retention notifications",
+      "Delivered a stable synchronization layer between Fitbit Cloud and local backend services"
     ],
     "contributions": [
-      "Designed and implemented custom validation decorators for complex business logic",
-      "Architected authentication flow using JWT with refresh token strategy",
-      "Built scalable Socket.io infrastructure for real-time messaging",
-      "Implemented comprehensive webhook event handlers for payment lifecycle management",
-      "Created efficient full-text search indexes for improved search performance",
-      "Developed automated notification system for user engagement and retention",
-      "Refactored database relationships using proper foreign keys and indexes",
-      "Implemented error handling and logging strategies for production stability"
+      "Architected the end-to-end data flow from wearable sensors to research CSV reports",
+      "Designed the backend infrastructure using Express and Socket.io for live data feeds",
+      "Developed the logic for dynamic survey branching and state management",
+      "Implemented the automated data export pipeline for academic research collaboration",
+      "Created the device health monitoring system to ensure continuous data streams",
+      "Designed the schema for efficient storage of high-frequency biometric analytics"
     ]
   }
 ]

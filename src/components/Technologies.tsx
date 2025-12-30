@@ -17,19 +17,27 @@ const Technologies = () => {
   const techCategories: TechCategory[] = [
     {
       name: 'Backend',
-      items: ['Laravel', 'Nest.js', 'Express.js', 'Core PHP'],
+      items: ['Nest.js', 'Express.js', 'Laravel', 'Core PHP', 'FastAPI'],
     },
     {
       name: 'Frontend',
-      items: ['Vue.js', 'React.js', 'jQuery UI', 'Tailwind CSS'],
+      items: ['Vue.js', 'React.js', 'Next.js', 'jQuery UI', 'Tailwind CSS'],
     },
     {
       name: 'Databases',
-      items: ['MongoDB', 'Redis', 'MemCached', 'MySQL', 'PostgreSQL'],
+      items: ['MongoDB', 'Redis', 'Memcached', 'MySQL', 'PostgreSQL'],
     },
     {
       name: 'DevOps',
-      items: ['Git', 'GitHub Actions', 'CI/CD', 'Docker', 'Forge', 'S3 Object Storage', 'PM2'],
+      items: ['Git', 'GitHub Actions', 'CI/CD', 'Docker', 'Forge', 'PM2'],
+    },
+    {
+      name: 'Cloud',
+      items: ['AWS', 'DigitalOcean', 'GCP', 'Scaleway', "Hetzner", "Vercel"],
+    },
+    {
+      name: 'AI/ML',
+      items: ['ChatGPT', 'Claude', 'AI Agents', 'fast.ai', 'Hugging Face', 'Redis Vector Search', 'Collaborative Filtering', 'Content Moderation'],
     },
     {
       name: 'CMS',
