@@ -115,7 +115,7 @@ const Contact = () => {
                     </svg>
                   </a>
                   <a 
-                    href="https://www.linkedin.com/in/huzaifa-alfahl-7878961b9/" 
+                    href="https://www.linkedin.com/in/huzayfa-alfahl-7878961b9/" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="bg-secondary p-3 rounded-full transition-transform hover:scale-110"
