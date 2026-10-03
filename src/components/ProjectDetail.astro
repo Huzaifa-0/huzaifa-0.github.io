@@ -1,0 +1,132 @@
+---
+import { Image } from 'astro:assets';
+import { projectImage } from '../lib/projectImages';
+
+interface Project {
+  title: string;
+  link: string | null;
+  excerpt: string;
+  description: string;
+  imageUrl: string;
+  technologies: string[];
+  role: string;
+  tasks: string[];
+  achievements: string[];
+  contributions: string[];
+}
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+---
+
+<div class="pb-20">
+  <div class="container max-w-5xl mx-auto">
+    <div data-reveal data-reveal-delay="0.1" class="mb-8">
+      <a href="/projects" class="group inline-flex items-center gap-2 mb-4 text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md px-4 py-2 -ml-4 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:-translate-x-1"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        Back to Projects
+      </a>
+    </div>
+
+    <div data-reveal data-reveal-delay="0.2">
+      <h1 class="text-3xl md:text-4xl font-bold mb-4">{project.title}</h1>
+    </div>
+
+    <div data-reveal data-reveal-delay="0.3" class="mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <p class="text-xl text-muted-foreground">{project.excerpt}</p>
+        {project.link && (
+          <a
+            href={project.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8 sm:w-auto"
+          >
+            View Project
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+          </a>
+        )}
+      </div>
+    </div>
+
+    <div data-reveal data-reveal-delay="0.4" class="mb-10">
+      <div class="aspect-video w-full rounded-lg overflow-hidden shadow-lg">
+        <Image src={projectImage(project.imageUrl)} alt={project.title} width={1024} height={576} loading="eager" class="w-full h-full object-cover" />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+      <div class="lg:col-span-2">
+        <div data-reveal data-reveal-delay="0.5" class="mb-6">
+          <h2 class="text-2xl font-semibold mb-4">Project Overview</h2>
+          <p class="text-lg leading-relaxed">{project.description}</p>
+        </div>
+
+        <div data-reveal data-reveal-delay="0.6" class="mb-6">
+          <h2 class="text-2xl font-semibold mt-8 mb-4">Role</h2>
+          <p class="text-lg">{project.role}</p>
+        </div>
+      </div>
+
+      <div class="space-y-8">
+        <div data-reveal data-reveal-delay="0.7">
+          <div class="bg-secondary/30 p-6 rounded-lg">
+            <h3 class="text-lg font-semibold mb-4">Technologies Used</h3>
+            <div class="flex flex-wrap gap-2">
+              {project.technologies.map((tech) => (
+                <span class="bg-secondary px-3 py-1 rounded-full text-sm">{tech}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-8">
+      <div data-reveal data-reveal-delay="0.8">
+        <div class="bg-secondary/30 p-8 rounded-lg border border-border/40">
+          <h3 class="text-2xl font-semibold mb-6 text-primary">Tasks</h3>
+          <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {project.tasks.map((task) => (
+              <li class="flex items-start gap-3">
+                <span class="inline-block w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0"></span>
+                <span class="text-base leading-relaxed">{task}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div data-reveal data-reveal-delay="0.9">
+        <div class="bg-secondary/30 p-8 rounded-lg border border-border/40">
+          <h3 class="text-2xl font-semibold mb-6 text-primary">Achievements</h3>
+          <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {project.achievements.map((achievement) => (
+              <li class="flex items-start gap-3">
+                <span class="inline-block w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0"></span>
+                <span class="text-base leading-relaxed">{achievement}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div data-reveal data-reveal-delay="1.0">
+        <div class="bg-secondary/30 p-8 rounded-lg border border-border/40">
+          <h3 class="text-2xl font-semibold mb-6 text-primary">Contributions</h3>
+          <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {project.contributions.map((contribution) => (
+              <li class="flex items-start gap-3">
+                <span class="inline-block w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0"></span>
+                <span class="text-base leading-relaxed">{contribution}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

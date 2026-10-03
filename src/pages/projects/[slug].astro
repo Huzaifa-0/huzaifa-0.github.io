@@ -1,0 +1,43 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getImage } from 'astro:assets';
+import ProjectDetail from '../../components/ProjectDetail.astro';
+import { projectImage } from '../../lib/projectImages';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((entry) => ({
+    params: { slug: entry.id },
+    props: { project: entry.data },
+  }));
+}
+
+const { project } = Astro.props;
+const ogImage = (await getImage({ src: projectImage(project.imageUrl), width: 1200, height: 630 })).src;
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: project.title,
+  description: project.excerpt,
+  image: new URL(ogImage, Astro.site).toString(),
+  creator: {
+    '@type': 'Person',
+    name: 'Huzaifa Alfahl',
+  },
+  keywords: project.technologies.join(', '),
+};
+---
+
+<BaseLayout
+  title={project.title}
+  description={project.excerpt}
+  image={ogImage}
+  type="article"
+  structuredData={structuredData}
+>
+  <div class="pt-32">
+    <ProjectDetail project={project} />
+  </div>
+</BaseLayout>

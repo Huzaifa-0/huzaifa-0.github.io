@@ -1,0 +1,61 @@
+---
+import { Image } from 'astro:assets';
+import { projectImage } from '../lib/projectImages';
+
+interface Project {
+  id: string;
+  title: string;
+  excerpt: string;
+  imageUrl: string;
+  technologies: string[];
+}
+
+interface Props {
+  project: Project;
+  index: number;
+}
+
+const { project, index } = Astro.props;
+const delay = 0.1 + (index % 6) * 0.1;
+---
+
+<div data-reveal data-reveal-delay={delay} class="h-full">
+  <a href={`/projects/${project.id}`} class="group block h-full">
+    <div class="flex h-full flex-col overflow-hidden rounded-lg border border-border/50 bg-card text-card-foreground shadow transition-all duration-500 group-hover:shadow-xl group-hover:scale-[1.02]">
+      <div class="relative aspect-video overflow-hidden">
+        <Image
+          src={projectImage(project.imageUrl)}
+          alt={project.title}
+          width={800}
+          height={450}
+          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+          class="object-cover h-full w-full transition-all duration-700 ease-out-expo group-hover:scale-110"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+      </div>
+
+      <div class="p-6 pt-4 pb-2 space-y-1.5">
+        <h3 class="text-xl font-semibold line-clamp-1">{project.title}</h3>
+        <p class="text-muted-foreground line-clamp-2 text-sm">{project.excerpt}</p>
+      </div>
+
+      <div class="px-6 pb-2">
+        <div class="flex flex-wrap gap-2">
+          {project.technologies.slice(0, 3).map((tech) => (
+            <span class="text-xs bg-secondary px-2 py-1 rounded-full">{tech}</span>
+          ))}
+          {project.technologies.length > 3 && (
+            <span class="text-xs bg-secondary px-2 py-1 rounded-full">+{project.technologies.length - 3}</span>
+          )}
+        </div>
+      </div>
+
+      <div class="mt-auto p-6 pt-4">
+        <div class="relative inline-flex items-center text-sm font-medium text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[1px] after:origin-left after:scale-x-0 after:bg-primary after:transition-transform after:duration-300 group-hover:after:scale-x-100">
+          View Details
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+        </div>
+      </div>
+    </div>
+  </a>
+</div>

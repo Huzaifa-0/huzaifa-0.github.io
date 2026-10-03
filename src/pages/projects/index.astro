@@ -1,0 +1,59 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+
+// The file() content loader orders entries by lexicographic string id
+// ("1", "10", "11", ... "2", ...), not JSON array order — re-sort numerically.
+const allProjects = (await getCollection('projects')).sort((a, b) => Number(a.id) - Number(b.id));
+const initialCount = 6;
+---
+
+<BaseLayout
+  title="Projects"
+  description="Explore Huzaifa Alfahl's portfolio of projects showcasing skills and expertise in full-stack software development."
+>
+  <div class="pt-32 pb-20">
+    <div class="container">
+      <div data-reveal data-reveal-delay="0.1" class="mb-4">
+        <h1 class="text-4xl md:text-5xl font-bold text-center">Projects</h1>
+      </div>
+
+      <div data-reveal data-reveal-delay="0.2" class="mb-6">
+        <div class="w-16 h-1 bg-primary mx-auto"></div>
+      </div>
+
+      <div data-reveal data-reveal-delay="0.3" class="mb-16">
+        <p class="text-xl text-muted-foreground text-center max-w-3xl mx-auto">
+          Explore my portfolio of projects showcasing my skills and expertise in software development
+        </p>
+      </div>
+
+      <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {allProjects.map((entry, index) => (
+          <div class:list={['project-grid-item', index >= initialCount ? 'hidden' : '']}>
+            <ProjectCard project={entry.data} index={index} />
+          </div>
+        ))}
+      </div>
+
+      {allProjects.length > initialCount && (
+        <div class="flex justify-center mt-12">
+          <button id="projects-load-more" type="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-8 py-2">
+            Load More
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const moreBtn = document.getElementById('projects-load-more');
+  const hiddenItems = () => Array.from(document.querySelectorAll<HTMLElement>('#projects-grid .project-grid-item.hidden'));
+
+  moreBtn?.addEventListener('click', () => {
+    hiddenItems().slice(0, 3).forEach((item) => item.classList.remove('hidden'));
+    if (!hiddenItems().length) moreBtn.remove();
+  });
+</script>

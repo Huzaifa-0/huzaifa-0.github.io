@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+import ProjectCard from './ProjectCard.astro';
+
+// The file() content loader orders entries by lexicographic string id
+// ("1", "10", "11", ... "2", ...), not JSON array order — re-sort numerically.
+const allProjects = (await getCollection('projects')).sort((a, b) => Number(a.id) - Number(b.id));
+const initialCount = 6;
+---
+
+<section id="projects" class="section bg-secondary/30">
+  <div class="container">
+    <div data-reveal data-reveal-delay="0.1" class="mb-4">
+      <h2 class="section-title text-center">Featured Projects</h2>
+    </div>
+
+    <div data-reveal data-reveal-delay="0.2" class="mb-6">
+      <div class="w-16 h-1 bg-primary mx-auto"></div>
+    </div>
+
+    <div data-reveal data-reveal-delay="0.3" class="mb-12">
+      <p class="section-subtitle text-center mx-auto">
+        A selection of my recent work and personal projects
+      </p>
+    </div>
+
+    <div id="projects-preview-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+      {allProjects.map((entry, index) => (
+        <div class:list={['project-preview-item', index >= initialCount ? 'hidden' : '']} data-index={index}>
+          <ProjectCard project={entry.data} index={index} />
+        </div>
+      ))}
+    </div>
+
+    <div class="flex justify-center mt-12">
+      <a href="/projects" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-11 px-8">
+        View All Projects
+      </a>
+    </div>
+  </div>
+</section>
