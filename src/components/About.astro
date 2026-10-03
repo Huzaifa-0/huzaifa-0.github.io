@@ -1,0 +1,57 @@
+---
+import { Image } from 'astro:assets';
+---
+
+<section id="about" class="section bg-secondary/30">
+  <div class="container">
+    <div class="max-w-4xl mx-auto">
+      <div data-reveal data-reveal-delay="0.1" class="mb-4">
+        <h2 class="section-title text-center">About Me</h2>
+      </div>
+
+      <div data-reveal data-reveal-delay="0.2" class="mb-8">
+        <div class="w-16 h-1 bg-primary mx-auto"></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div class="space-y-6">
+          <div data-reveal data-reveal-delay="0.3">
+            <p class="text-lg">
+              Experienced Full Stack Software Engineer with 5+ years of delivering high-impact solutions for diverse industries. Proven track record of architecting scalable systems, leading technical migrations, and implementing AI-powered features that drive measurable business results. Successfully reduced operational costs by 60-70%, improved user engagement by 40-45%. Expert at identifying performance bottlenecks and implementing optimizations that significantly enhance user experience. Passionate about mentoring teams, establishing best practices, and transforming complex business requirements into elegant technical solutions that scale.
+            </p>
+          </div>
+
+          <div data-reveal data-reveal-delay="0.6">
+            <div class="flex flex-wrap gap-3 mt-4">
+              <span class="tech-item">AI/ML Integration Specialist</span>
+              <span class="tech-item">Microservices Architect</span>
+              <span class="tech-item">Team Leader &amp; Mentor</span>
+              <span class="tech-item">Problem Solver</span>
+              <span class="tech-item">Clean Code Advocate</span>
+              <span class="tech-item">Continuous Learner</span>
+              <span class="tech-item">Team Player</span>
+            </div>
+          </div>
+        </div>
+
+        <div data-reveal-x data-reveal-delay="0.3" class="overflow-hidden">
+          <div class="reveal-x-inner relative">
+            <div class="relative z-10">
+              <div class="aspect-square rounded-lg overflow-hidden shadow-lg">
+                <Image
+                  src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1000"
+                  alt="Coding on a laptop"
+                  width={500}
+                  height={500}
+                  class="object-cover w-full h-full"
+                />
+              </div>
+              <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-primary/10 rounded-lg"></div>
+            </div>
+            <div class="absolute -top-4 -left-4 w-full h-full border-2 border-primary/20 rounded-lg z-0"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
