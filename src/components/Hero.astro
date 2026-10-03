@@ -1,0 +1,111 @@
+---
+import { Image } from 'astro:assets';
+import profileImage from '../assets/profile.jpg';
+---
+
+<section id="hero-section" class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden pt-20 pb-10 w-full">
+  <div class="container flex flex-col items-center text-center z-10">
+    <div data-hero-reveal style="transition-delay: 300ms" class="hero-reveal-scale relative w-48 h-48 md:w-64 md:h-64 mb-8 rounded-full overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-primary/5 rounded-full"></div>
+      <Image
+        src={profileImage}
+        alt="Huzaifa Alfahl - Full Stack Engineer"
+        class="object-cover object-[0_-3.75rem] w-full h-full rounded-full p-2"
+        position="top"
+        width={256}
+        height={320}
+        loading="eager"
+        fetchpriority="high"
+      />
+      <div class="absolute inset-0 rounded-full shadow-inner"></div>
+    </div>
+
+    <h1 data-hero-reveal style="transition-delay: 400ms" class="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 tracking-tight bg-clip-text">
+      <span>Hello, I'm </span>
+      <span class="text-primary">Huzaifa Alfahl</span>
+    </h1>
+
+    <h2 data-hero-reveal style="transition-delay: 600ms" class="text-2xl md:text-3xl font-medium mb-6 text-muted-foreground">
+      <span class="sr-only">Full Stack Engineer</span>
+      <span id="hero-title" aria-hidden="true"></span>
+    </h2>
+
+    <p data-hero-reveal style="transition-delay: 800ms" class="max-w-xl text-lg md:text-xl text-muted-foreground/90 mb-10">
+      <span class="sr-only">Building elegant, performant applications</span>
+      <span id="hero-subtitle" aria-hidden="true"></span>
+    </p>
+
+    <div data-hero-reveal style="transition-delay: 1000ms" class="flex flex-col sm:flex-row gap-4">
+      <a href="/projects" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8">
+        View Projects
+      </a>
+      <a href="#contact" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 px-8">
+        Contact Me
+      </a>
+    </div>
+
+    <button
+      id="hero-scroll-btn"
+      data-hero-reveal
+      style="transition-delay: 1200ms"
+      class="mt-8 bg-transparent p-2 rounded-full animate-bounce"
+      aria-label="Scroll to About section"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+  </div>
+
+  <!-- Decorative elements -->
+  <div class="absolute top-1/3 -left-32 w-64 h-64 bg-primary/5 rounded-full filter blur-3xl"></div>
+  <div class="absolute bottom-1/3 -right-48 w-96 h-96 bg-primary/5 rounded-full filter blur-3xl"></div>
+</section>
+
+<style>
+  [data-hero-reveal] {
+    opacity: 0;
+    transform: translateY(2.5rem);
+    transition: opacity 1s, transform 1s;
+  }
+  .hero-reveal-scale {
+    transform: scale(0.95);
+  }
+  #hero-section.hero-visible [data-hero-reveal] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  #hero-section.hero-visible .hero-reveal-scale {
+    transform: scale(1);
+  }
+  #hero-scroll-btn {
+    opacity: 0;
+  }
+  #hero-section.hero-visible #hero-scroll-btn {
+    opacity: 0.7;
+  }
+</style>
+
+<script>
+  function typewriter(el: HTMLElement, text: string, speed: number, delay: number) {
+    let i = 0;
+    const type = () => {
+      if (i < text.length) {
+        el.textContent += text[i];
+        i += 1;
+        setTimeout(type, speed);
+      }
+    };
+    setTimeout(type, delay);
+  }
+
+  const heroSection = document.getElementById('hero-section');
+  const titleEl = document.getElementById('hero-title');
+  const subtitleEl = document.getElementById('hero-subtitle');
+
+  if (heroSection) requestAnimationFrame(() => heroSection.classList.add('hero-visible'));
+  if (titleEl) typewriter(titleEl, 'Full Stack Engineer', 100, 500);
+  if (subtitleEl) typewriter(subtitleEl, 'Building elegant, performant applications', 30, 1500);
+
+  document.getElementById('hero-scroll-btn')?.addEventListener('click', () => {
+    document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+  });
+</script>
