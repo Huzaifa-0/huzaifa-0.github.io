@@ -1,17 +1,32 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
+import Technologies from '../components/Technologies.astro';
+import ProjectsPreview from '../components/ProjectsPreview.astro';
+import Experience from '../components/Experience.astro';
+import Contact from '../components/Contact.astro';
 
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Huzaifa Alfahl',
+  jobTitle: 'Full Stack Engineer',
+  email: 'mailto:huzaifa963sy@gmail.com',
+  url: 'https://huzaifa-0.github.io',
+  sameAs: ['https://github.com/Huzaifa-0', 'https://www.linkedin.com/in/huzayfa-alfahl-7878961b9/'],
+};
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout
+  title="Huzaifa Alfahl — Full Stack Engineer"
+  description="Portfolio of Huzaifa Alfahl, a Full Stack Engineer with 5+ years of experience building scalable systems and AI-powered features."
+  structuredData={structuredData}
+>
+  <Hero />
+  <About />
+  <Technologies />
+  <ProjectsPreview />
+  <Experience />
+  <Contact />
+</BaseLayout>
