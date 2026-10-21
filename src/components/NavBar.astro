@@ -121,7 +121,8 @@ const currentPath = Astro.url.pathname;
     header.classList.toggle('py-5', !scrolled);
   };
   window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+  // scrollY forces layout; do the initial read in a frame instead of during script evaluation.
+  requestAnimationFrame(onScroll);
 
   const setMenuOpen = (open: boolean) => {
     menu.classList.toggle('opacity-100', open);
