@@ -5,22 +5,26 @@ interface ExperienceItem {
   location: string;
   period: string;
   achievements: string[];
+  skills?: string[];
 }
 
 const experienceData: ExperienceItem[] = [
   {
-    title: 'Full-Stack Developer',
+    title: 'Lead Full-Stack Developer',
     company: 'DA STUDIO',
     location: 'Dubai',
     period: 'February 2023 — Present',
     achievements: [
-      'Led NestJS migration from Express.js with zero downtime, reducing runtime errors by 75%',
-      'Architected AI-powered systems: collaborative filtering with content-based metadata recommendations (+45% engagement), scam detection (81% accuracy), content moderation (84%+ accuracy)',
-      'Built microservices with FastAPI and Redis Pub/Sub, achieving <500ms real-time communication',
-      'Implemented Redis Vector Search with Hugging Face transformers, improving match relevance by 65%',
-      'Integrated Meilisearch and Mapbox clusters, optimized performance with Redis caching reducing costs by 60%',
-      'Upgraded Node.js (v12→v22) and Sphinx (v2.2→v3.0), improving search performance significantly',
+      'Designed high-performance search systems using Meilisearch and Sphinx, improving query response times and content discoverability',
+      'Implemented Redis caching and optimized database queries, reducing backend latency and improving overall application performance',
+      'Led modernization efforts including framework migrations and backend architecture improvements for legacy systems',
+      'Reduced Time to Interactive (TTI) by architecting a code-splitting strategy and leveraging React Server Components for heavy data fetching',
+      'Improved Core Web Vitals and SEO performance by eliminating layout shifts, optimizing asset delivery, and reducing render-blocking resources',
+      'Managed CI/CD pipelines using GitHub Actions with automated testing, deployment workflows, and AWS infrastructure provisioning',
+      'Conducted code reviews, mentored developers, and coordinated backend architecture decisions across multiple product teams',
+      'Integrated APM and monitoring solutions for production systems, enabling performance bottleneck detection, error tracking, and infrastructure health monitoring',
     ],
+    skills: ['Microservices', 'Monorepo', 'Event-Driven Architecture', 'Vector Search', 'Test Driven Development', 'AI Tools Integration', 'MongoDB Aggregation Optimization', 'CI/CD Pipeline Automation'],
   },
   {
     title: 'Full-Stack Developer',
@@ -28,24 +32,27 @@ const experienceData: ExperienceItem[] = [
     location: 'Dubai',
     period: 'August 2022 — February 2023',
     achievements: [
-      'Revamped legacy ERP to scalable NestJS architecture with modern authentication and validation',
-      'Integrated multi-gateway payment systems (Stripe, PayPal, French banking APIs) with webhook management',
-      'Built real-time Socket.io chat and automated cron jobs reducing manual operations',
-      'Refactored database architecture with proper indexing, improving query performance',
+      'Built and maintained scalable backend services using NestJS and PostgreSQL, delivering Swagger-documented REST APIs',
+      'Implemented TanStack Query background refetching to maintain real-time data freshness and a reactive client-side experience',
+      'Integrated payment systems including Stripe and PayPal with subscription management and webhook processing',
+      'Refactored legacy APIs into a modern modular architecture, improving maintainability and development speed',
+      'Participated in CI/CD pipeline implementation using GitHub Actions, integrating automated testing and deployment workflows',
     ],
+    skills: ['Redis Caching', 'Next.js (ISR/SSR)', 'Payment Gateway Integration', 'Docker Containerization', 'Modular Software Architecture', 'Legacy System Refactoring'],
   },
   {
     title: 'Full-Stack Developer',
     company: 'HET',
     location: 'Istanbul',
-    period: 'March 2020 — April 2022',
+    period: 'March 2021 — April 2022',
     achievements: [
-      'Built multiple CMS platforms using Laravel Nova for non-technical users',
-      'Implemented background job processing and cron-based automation for notifications and system tasks, increasing user re-engagement by approximately 40%',
-      'Developed role-based access systems with JWT authentication and secure reporting workflows',
-      'Optimized database schemas and queries with proper indexing, cutting load times by 35%',
-      'Integrated payment gateways (Stripe webhooks) and SEO enhancements improving search rankings',
+      'Optimized rendering performance by implementing virtualization for large datasets and strategic memoization to minimize reconciliation overhead',
+      'Implemented background jobs and cron-based automation for system notifications and maintenance tasks',
+      'Architected a modular form system in Vue.js using Composables, improving overall UX consistency',
+      'Enhanced data integrity in Vue for complex multi-step form validation and error state management',
+      'Optimized database queries, indexing strategies, and memory-efficient data access patterns, improving application performance',
     ],
+    skills: ['React.js SPA', 'Vue Composables', 'MySQL Indexing', 'Nginx', 'Reverse Proxy', 'CDN', 'Background Job Processing', 'Frontend Performance Optimization', 'SEO Technical Audit'],
   },
   {
     title: 'Java Backend Developer Intern',
@@ -124,6 +131,14 @@ const experienceData: ExperienceItem[] = [
                       </li>
                     ))}
                   </ul>
+
+                  {experience.skills && (
+                    <div class="flex flex-wrap gap-2 mt-4">
+                      {experience.skills.map((skill) => (
+                        <span class="text-xs rounded-full px-2.5 py-1 bg-primary/10 text-primary">{skill}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 

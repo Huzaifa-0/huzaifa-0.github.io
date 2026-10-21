@@ -9,7 +9,7 @@ import profileImage from '../assets/profile.jpg';
       <div class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-primary/5 rounded-full"></div>
       <Image
         src={profileImage}
-        alt="Huzaifa Alfahl - Full Stack Engineer"
+        alt="Huzaifa Alfahl - Senior Full Stack Developer"
         class="object-cover object-[0_-3.75rem] w-full h-full rounded-full p-2"
         position="top"
         width={256}
@@ -26,7 +26,7 @@ import profileImage from '../assets/profile.jpg';
     </h1>
 
     <h2 data-hero-reveal style="transition-delay: 600ms" class="text-2xl md:text-3xl font-medium mb-6 text-muted-foreground">
-      <span class="sr-only">Full Stack Engineer</span>
+      <span class="sr-only">Senior Full Stack Developer</span>
       <span id="hero-title" aria-hidden="true"></span>
     </h2>
 
@@ -102,7 +102,7 @@ import profileImage from '../assets/profile.jpg';
   const subtitleEl = document.getElementById('hero-subtitle');
 
   if (heroSection) requestAnimationFrame(() => heroSection.classList.add('hero-visible'));
-  if (titleEl) typewriter(titleEl, 'Full Stack Engineer', 100, 500);
+  if (titleEl) typewriter(titleEl, 'Senior Full Stack Developer', 100, 500);
   if (subtitleEl) typewriter(subtitleEl, 'Building elegant, performant applications', 30, 1500);
 
   document.getElementById('hero-scroll-btn')?.addEventListener('click', () => {
