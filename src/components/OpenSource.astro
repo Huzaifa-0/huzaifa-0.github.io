@@ -1,0 +1,87 @@
+---
+interface OpenSourceItem {
+  name: string;
+  tagline: string;
+  description: string;
+  link: string;
+  linkLabel: string;
+  points: string[];
+  pointsLabel?: string;
+}
+
+const openSourceData: OpenSourceItem[] = [
+  {
+    name: 'nest-sse',
+    tagline: 'NestJS Server-Sent Events Utility',
+    description: 'A lightweight, high-performance library for implementing real-time unidirectional data streaming in NestJS applications.',
+    link: 'https://www.npmjs.com/package/nest-sse',
+    linkLabel: 'View on npm',
+    pointsLabel: 'Use Cases',
+    points: [
+      'Real-time AI model token streaming (e.g., ChatGPT-style response typing)',
+      'Live system monitoring dashboards and notification feeds',
+      'Low-overhead status updates for long-running background processes',
+    ],
+  },
+  {
+    name: 'Strapi Content Versioning Plugin',
+    tagline: 'Open-Source Contribution (Strapi v4)',
+    description: 'Community plugin adding content versioning to Strapi v4 (notum-cz/strapi-plugin-content-versioning).',
+    link: 'https://github.com/notum-cz/strapi-plugin-content-versioning',
+    linkLabel: 'View on GitHub',
+    points: [
+      'Reported GitHub issues, forked the repository and fixed database query issues in the plugin to make it work reliably in production',
+    ],
+  },
+];
+---
+
+<section id="open-source" class="section bg-secondary/30">
+  <div class="container">
+    <div data-reveal data-reveal-delay="0.1" class="mb-4">
+      <h2 class="section-title text-center">Open Source &amp; Libraries</h2>
+    </div>
+
+    <div data-reveal data-reveal-delay="0.2" class="mb-6">
+      <div class="w-16 h-1 bg-primary mx-auto"></div>
+    </div>
+
+    <div data-reveal data-reveal-delay="0.3" class="mb-12">
+      <p class="section-subtitle text-center mx-auto">
+        Libraries I've published and projects I've contributed to
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto">
+      {openSourceData.map((item, index) => (
+        <div data-reveal data-reveal-delay={0.4 + index * 0.1} class="h-full">
+          <div class="bg-background rounded-lg p-6 h-full flex flex-col hover:shadow-lg transition-all duration-300">
+            <h3 class="text-xl md:text-2xl font-bold text-foreground">{item.name}</h3>
+            <p class="text-primary font-semibold mt-1 mb-4">{item.tagline}</p>
+            <p class="text-muted-foreground text-sm leading-relaxed mb-4">{item.description}</p>
+
+            {item.pointsLabel && <p class="text-sm font-semibold text-foreground mb-2">{item.pointsLabel}</p>}
+            <ul class="space-y-2 mb-6">
+              {item.points.map((point) => (
+                <li class="flex gap-2 text-muted-foreground text-sm">
+                  <span class="text-primary mt-1 flex-shrink-0">&bull;</span>
+                  <span class="leading-relaxed">{point}</span>
+                </li>
+              ))}
+            </ul>
+
+            <a
+              href={item.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-auto inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+            >
+              {item.linkLabel}
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3"/></svg>
+            </a>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
