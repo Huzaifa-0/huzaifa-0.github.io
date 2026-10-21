@@ -28,7 +28,8 @@ const delay = 0.1 + (index % 6) * 0.1;
           alt={project.title}
           width={800}
           height={450}
-          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+          widths={[400, 662, 800]}
+          sizes="(min-width: 1280px) 389px, (min-width: 1024px) calc((100vw - 112px) / 3), (min-width: 768px) calc((100vw - 80px) / 2), calc(100vw - 32px)"
           class="object-cover h-full w-full transition-all duration-700 ease-out-expo group-hover:scale-110"
         />
         <div class="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
