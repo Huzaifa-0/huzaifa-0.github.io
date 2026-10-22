@@ -3,10 +3,12 @@ const navigationItems = [
   { label: 'Home', path: '/' },
   { label: 'Experience', path: '/#experience' },
   { label: 'Projects', path: '/projects' },
+  { label: 'Case Studies', path: '/case-studies' },
   { label: 'Contact', path: '/#contact' },
 ];
 
 const currentPath = Astro.url.pathname;
+const isActivePath = (path: string) => path === currentPath || (path.startsWith('/') && !path.includes('#') && path !== '/' && currentPath.startsWith(path));
 ---
 
 <header id="site-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out-expo w-full py-5">
@@ -22,7 +24,7 @@ const currentPath = Astro.url.pathname;
     <!-- Desktop Navigation -->
     <nav class="hidden md:flex items-center space-x-8">
       {navigationItems.map((item) => {
-        const isActive = item.path === currentPath || (item.path === '/projects' && currentPath.startsWith('/projects'));
+        const isActive = isActivePath(item.path);
         return (
           <a
             href={item.path}
@@ -77,7 +79,7 @@ const currentPath = Astro.url.pathname;
 
   <div class="flex flex-col items-center justify-center h-full w-full space-y-8 px-4">
     {navigationItems.map((item) => {
-      const isActive = item.path === currentPath || (item.path === '/projects' && currentPath.startsWith('/projects'));
+      const isActive = isActivePath(item.path);
       return (
         <a
           href={item.path}

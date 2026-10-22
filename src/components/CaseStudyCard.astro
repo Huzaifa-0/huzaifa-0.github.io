@@ -1,0 +1,41 @@
+---
+interface Props {
+  study: { id: string; title: string; tagline: string; type?: string; tags: string[] };
+  index: number;
+}
+
+const { study, index } = Astro.props;
+const delay = 0.1 + (index % 6) * 0.1;
+---
+
+<div data-reveal data-reveal-delay={delay} class="h-full">
+  <a href={`/case-studies/${study.id}`} class="group block h-full">
+    <div class="flex h-full flex-col overflow-hidden rounded-lg border border-border/50 bg-card text-card-foreground shadow transition-all duration-500 group-hover:shadow-xl group-hover:scale-[1.02]">
+      <div class="h-1.5 bg-primary"></div>
+
+      <div class="p-6 pb-2 space-y-2">
+        {study.type && <p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">{study.type}</p>}
+        <h3 class="text-xl font-semibold line-clamp-2">{study.title}</h3>
+        <p class="text-muted-foreground line-clamp-4 text-sm">{study.tagline}</p>
+      </div>
+
+      <div class="px-6 pb-2 pt-2">
+        <div class="flex flex-wrap gap-2">
+          {study.tags.slice(0, 3).map((tag) => (
+            <span class="text-xs bg-secondary px-2 py-1 rounded-full">{tag}</span>
+          ))}
+          {study.tags.length > 3 && (
+            <span class="text-xs bg-secondary px-2 py-1 rounded-full">+{study.tags.length - 3}</span>
+          )}
+        </div>
+      </div>
+
+      <div class="mt-auto p-6 pt-4">
+        <div class="relative inline-flex items-center text-sm font-medium text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[1px] after:origin-left after:scale-x-0 after:bg-primary after:transition-transform after:duration-300 group-hover:after:scale-x-100">
+          Read Case Study
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </div>
+    </div>
+  </a>
+</div>

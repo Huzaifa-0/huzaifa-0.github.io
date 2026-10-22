@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CaseStudyCard from '../../components/CaseStudyCard.astro';
+import { getCaseStudies } from '../../lib/caseStudies';
+
+const studies = await getCaseStudies();
+const initialCount = 6;
+---
+
+<BaseLayout
+  title="Case Studies"
+  description="In-depth case studies by Huzaifa Alfahl: architecture, workflows and engineering decisions behind AI, data-pipeline and migration projects."
+>
+  <div class="pt-32 pb-20">
+    <div class="container">
+      <div data-reveal data-reveal-delay="0.1" class="mb-4">
+        <h1 class="text-4xl md:text-5xl font-bold text-center">Case Studies</h1>
+      </div>
+
+      <div data-reveal data-reveal-delay="0.2" class="mb-6">
+        <div class="w-16 h-1 bg-primary mx-auto"></div>
+      </div>
+
+      <div data-reveal data-reveal-delay="0.3" class="mb-16">
+        <p class="text-xl text-muted-foreground text-center max-w-3xl mx-auto">
+          Deep dives into the architecture, workflows and decisions behind selected systems
+        </p>
+      </div>
+
+      <div id="case-studies-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {studies.map((entry, index) => (
+          <div class:list={['case-study-grid-item', index >= initialCount ? 'hidden' : '']}>
+            <CaseStudyCard study={entry.data} index={index} />
+          </div>
+        ))}
+      </div>
+
+      {studies.length > initialCount && (
+        <div class="flex justify-center mt-12">
+          <button id="case-studies-load-more" type="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-8 py-2">
+            Load More
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const moreBtn = document.getElementById('case-studies-load-more');
+  const hiddenItems = () => Array.from(document.querySelectorAll<HTMLElement>('#case-studies-grid .case-study-grid-item.hidden'));
+
+  moreBtn?.addEventListener('click', () => {
+    hiddenItems().slice(0, 3).forEach((item) => item.classList.remove('hidden'));
+    if (!hiddenItems().length) moreBtn.remove();
+  });
+</script>

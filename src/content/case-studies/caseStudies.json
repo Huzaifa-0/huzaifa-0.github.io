@@ -1,0 +1,1552 @@
+[
+  {
+    "id": "sire-student-insight-recommendation-engine",
+    "title": "SIRE — Student Insight & Recommendation Engine",
+    "tagline": "A permission-scoped, citation-backed RAG system that helps academic advisors turn SIS/LMS records into reviewable student insights.",
+    "role": "Full-stack / AI engineer (solo build)",
+    "type": "Advisor-facing RAG MVP",
+    "status": "Working MVP, synthetic data only",
+    "tags": [
+      "RAG",
+      "LangGraph",
+      "FastAPI",
+      "React",
+      "pgvector",
+      "AI Guardrails",
+      "Human-in-the-loop",
+      "EdTech"
+    ],
+    "summary": "SIRE retrieves a student's academic evidence, builds a cited strengths/weaknesses/engagement profile, and proposes recommendations. A guardrail layer checks every claim against retrieved evidence, and an advisor must approve or override each result before it counts.",
+    "problem": {
+      "context": "Advisors work across fragmented SIS and LMS data (grades, attendance, submissions, study plans). Spotting at-risk students and choosing the next action is slow, and student data is highly sensitive.",
+      "challenges": [
+        "Unify records from different source systems into one searchable form",
+        "Never expose a record the requesting user is not entitled to see",
+        "Keep AI output grounded in evidence instead of hallucinated",
+        "Avoid vendor lock-in to a single LLM provider",
+        "Keep a human accountable for every academic recommendation"
+      ]
+    },
+    "solution": {
+      "approach": [
+        "Separate evidence retrieval, model reasoning, validation, guardrails and human approval into distinct layers, so each can be tested and replaced on its own."
+      ],
+      "features": [
+        {
+          "name": "Permission-scoped access",
+          "description": "Advisors see assigned students; faculty and department heads see their department; students see only themselves; deans get aggregate-only access; admins have no academic detail access by default."
+        },
+        {
+          "name": "Canonical SIS/LMS records",
+          "description": "Source records are normalized into one academic_records table with source provenance, structured JSON facts, scope metadata and an optional embedding. A unique source_ref makes ingestion idempotent."
+        },
+        {
+          "name": "Scope-first hybrid retrieval",
+          "description": "Student and department/program filters are applied in the query before any ranking. Candidates are then scored as 0.7 × embedding cosine similarity + 0.3 × keyword overlap."
+        },
+        {
+          "name": "Evidence-grounded output",
+          "description": "Every profile signal and recommendation carries evidence_record_ids. Citations are built from retrieved records, not generated after the fact."
+        },
+        {
+          "name": "Provider-neutral model gateway",
+          "description": "The workflow depends on an analyze()/recommend() interface. A deterministic mock is the default; any OpenAI-compatible server (Ollama, vLLM, LocalAI, OpenAI) plugs in through configuration."
+        },
+        {
+          "name": "Guardrails and human review",
+          "description": "Checks unknown evidence IDs, empty retrieval or recommendations, prompt-injection-like source text and SSN-shaped identifiers. Even passing results remain advisor-reviewable."
+        },
+        {
+          "name": "Advisor review dashboard",
+          "description": "React UI showing the profile, recommendations, citations, confidence and flags, with approve/override actions."
+        }
+      ]
+    },
+    "architecture": {
+      "style": "Layered web app with an agentic workflow and a model adapter boundary",
+      "diagram": "React dashboard -> FastAPI -> Identity/authorization -> InsightWorkflow (LangGraph) -> ScopedRetriever -> SQLite or PostgreSQL+pgvector; InsightWorkflow -> ModelGateway -> Mock or OpenAI-compatible provider; results -> InsightRun + Review",
+      "layers": [
+        {
+          "name": "Frontend",
+          "detail": "React + TypeScript + Vite advisor workspace with a typed fetch client."
+        },
+        {
+          "name": "API",
+          "detail": "FastAPI under /api/v1. Resolves the caller, authorizes the student, runs the workflow, returns validated responses."
+        },
+        {
+          "name": "Authorization",
+          "detail": "authorize_student() runs before the workflow and again when reading a saved run. The demo identity header X-User-Email is a development seam to be replaced by OIDC/Entra claims."
+        },
+        {
+          "name": "Workflow",
+          "detail": "LangGraph state machine over a typed InsightState: retrieve -> analyze -> recommend -> guardrail, then either awaiting_review or human_review (flagged_for_review)."
+        },
+        {
+          "name": "Retrieval",
+          "detail": "ScopedRetriever filters by student, department and program, then ranks. On PostgreSQL an HNSW cosine index narrows the permission-filtered set; on SQLite scoring runs in Python."
+        },
+        {
+          "name": "Model gateway",
+          "detail": "MockModelGateway (deterministic, offline) or OpenAICompatibleGateway (temperature 0, JSON mode, output validated with Pydantic)."
+        },
+        {
+          "name": "Persistence",
+          "detail": "User, Student, AcademicRecord, InsightRun and Review tables. Alembic migration for PostgreSQL + pgvector."
+        }
+      ],
+      "keyBoundaries": [
+        "Security boundary: scope is enforced at the API and again inside the retrieval query, so ranking can never surface out-of-scope records.",
+        "Model boundary: the workflow does not know whether reasoning is deterministic code or a remote chat model."
+      ],
+      "flows": [
+        {
+          "name": "Request lifecycle",
+          "steps": [
+            "Advisor clicks Generate insight",
+            "API resolves identity and authorizes the student",
+            "LangGraph retrieves permission-scoped evidence",
+            "Model gateway creates a profile",
+            "Model gateway creates evidence-linked recommendations",
+            "Guardrail checks grounding, flags and confidence",
+            "InsightRun is saved",
+            "Dashboard shows the result for advisor review",
+            "Advisor approves or overrides"
+          ]
+        }
+      ]
+    },
+    "guardrailLogic": {
+      "groundedness": "1.0 only when claims exist and every claimed evidence ID was retrieved",
+      "confidence": "min(1.0, 0.55 + 0.05 × retrieved_count) × groundedness",
+      "passCondition": "No flags and confidence ≥ 0.70; otherwise the run is flagged_for_review"
+    },
+    "apiSurface": [
+      {
+        "method": "POST",
+        "path": "/api/v1/demo/seed",
+        "purpose": "Idempotently create the demo advisor, student and five synthetic records"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/students",
+        "purpose": "List students filtered by the caller's role and scope"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/students/{student_id}/insights",
+        "purpose": "Authorize, run the graph, persist an InsightRun"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/insights/{run_id}",
+        "purpose": "Fetch a saved run after re-checking authorization"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/insights/{run_id}/review",
+        "purpose": "Record the advisor decision (approved or overridden)"
+      },
+      {
+        "method": "GET",
+        "path": "/health",
+        "purpose": "Service health"
+      }
+    ],
+    "techStack": {
+      "backend": [
+        "Python 3.11+",
+        "FastAPI",
+        "Pydantic",
+        "SQLAlchemy",
+        "Alembic"
+      ],
+      "ai": [
+        "LangGraph",
+        "OpenAI-compatible chat and embeddings API",
+        "Ollama",
+        "vLLM / LocalAI compatible",
+        "Hybrid vector + keyword retrieval"
+      ],
+      "data": [
+        "PostgreSQL 16",
+        "pgvector (HNSW cosine index)",
+        "SQLite fallback"
+      ],
+      "frontend": [
+        "React",
+        "TypeScript",
+        "Vite"
+      ],
+      "quality": [
+        "pytest + coverage",
+        "Ruff",
+        "JSON golden-set regression",
+        "Production build check"
+      ],
+      "devops": [
+        "Docker",
+        "Docker Compose (API, frontend, PostgreSQL, optional Ollama profile)",
+        "PowerShell start scripts"
+      ]
+    },
+    "keyDecisions": [
+      {
+        "decision": "Scope filtering before ranking",
+        "reason": "Relevance scoring must never be able to surface a record outside the caller's academic scope.",
+        "tradeoff": "Slightly more complex queries in exchange for a hard security guarantee."
+      },
+      {
+        "decision": "Provider-neutral gateway with a deterministic mock default",
+        "reason": "Tests, golden-set evaluation and demos run with no API key, Docker or model server, and the provider can change through five env values.",
+        "tradeoff": "The hash-based mock embedding is a test fallback, not a semantic model."
+      },
+      {
+        "decision": "SQLite and PostgreSQL+pgvector side by side",
+        "reason": "Zero-infrastructure local development, with a production-like vector path available.",
+        "tradeoff": "Two code paths for scoring; the embedding dimension must be changed together with the migration."
+      },
+      {
+        "decision": "No knowledge graph in the MVP",
+        "reason": "Study-plan and prerequisite facts are small enough for relational rows plus JSON facts. A graph database would add operating cost before adding signal.",
+        "tradeoff": "Revisit Neo4j or a Postgres graph extension only when multi-hop degree-plan queries show a measurable benefit."
+      },
+      {
+        "decision": "Human review is always required",
+        "reason": "The model drafts; guardrails check; an authorized advisor decides.",
+        "tradeoff": "Less automation, more accountability for a sensitive domain."
+      },
+      {
+        "decision": "Treat source text as untrusted data",
+        "reason": "Prompt instructions tell the model record content is data, and prompt-injection-like text routes to review.",
+        "tradeoff": "Heuristic detection can produce false positives that cost advisor time."
+      }
+    ],
+    "engineering": [
+      "Pydantic contracts validate both model output and API responses, so malformed model JSON fails loudly",
+      "Idempotent seeding and ingestion through a unique source_ref",
+      "temperature=0 and JSON mode for repeatable model output",
+      "API tests cover seed -> list -> generate -> review, plus unknown-identity rejection",
+      "Golden-set evaluation runner for regression checks",
+      "Alembic migration for the pgvector schema",
+      "Containerized with Docker Compose"
+    ],
+    "demo": {
+      "primaryUser": "Academic advisor",
+      "workflow": [
+        "Seed a small synthetic dataset",
+        "View students within the advisor's authorization scope",
+        "Generate an insight for a selected student",
+        "Inspect strengths, weaknesses, engagement signals, recommendations, citations, confidence and guardrail flags",
+        "Approve or override with an optional note and 1–5 rating"
+      ],
+      "data": {
+        "note": "All data is synthetic.",
+        "student": "S1001",
+        "records": [
+          "CS201 grade 88%, improving",
+          "MA202 grade 64%, declining",
+          "MA202 engagement: 72% attendance, three late submissions, declining",
+          "MA202 study plan: tutoring approved, prerequisite for CS310",
+          "DB210 grade 84%, stable"
+        ],
+        "expectedOutput": "At least one strength, one weakness, engagement evidence, recommendations, citations and groundedness of 1.0 with the mock provider."
+      }
+    },
+    "outcomes": [
+      "End-to-end working pipeline from authorization to retrieval, analysis, guardrails, persistence and advisor review",
+      "Runs fully offline with no key or model, and switches to a local open-weight model (for example Ollama with Qwen2.5) by configuration only",
+      "Every recommendation traces back to a cited source record",
+      "Authorization is enforced at three points: student access, retrieval query and saved-run access"
+    ],
+    "limitations": [
+      "X-User-Email identity header is a development seam, not production authentication",
+      "Demo data is synthetic; real connectors need schema contracts, retry/outbox, secrets management, audit logging and retention policy",
+      "Confidence is a simple heuristic, not a calibrated score",
+      "Golden set is tiny; a pilot needs 50–200 anonymized, advisor-labeled cases"
+    ],
+    "nextSteps": [
+      "Verified OIDC / Microsoft Entra authentication",
+      "Precomputed embeddings with retries and provider-failure monitoring",
+      "Larger labeled evaluation set with retrieval recall, recommendation validity, fairness slices, latency and cost thresholds in CI",
+      "Real SIS/LMS connectors and audit logging",
+      "Knowledge graph only if multi-hop degree-plan queries justify it"
+    ],
+    "links": {
+      "repository": "",
+      "liveDemo": "",
+      "apiDocs": "http://localhost:8000/docs"
+    }
+  },
+  {
+    "id": "graphrag-document-intelligence",
+    "title": "GraphRAG Document Intelligence Workspace",
+    "tagline": "Upload documents, ask questions, get streamed answers grounded in cited passages and an explorable knowledge graph.",
+    "role": "Full-stack / AI engineer (design, backend, frontend, infrastructure)",
+    "status": "Working prototype (containerised, not yet multi-tenant)",
+    "tags": [
+      "AI / LLM",
+      "RAG",
+      "Full-stack",
+      "Data pipeline"
+    ],
+    "summary": "A GraphRAG system that combines vector search (Qdrant) with a knowledge graph (Neo4j) so answers are grounded in source text and backed by traceable entity relationships. Documents are ingested asynchronously, retrieved with a LangGraph pipeline, and answered over Server-Sent Events with citations the user can inspect.",
+    "problem": {
+      "context": "Plain vector RAG retrieves isolated snippets. It misses relationships that span passages (who acquired whom, who works for which company) and gives users little way to verify where an answer came from.",
+      "challenges": [
+        "Long-running document parsing, embedding and entity extraction must not block the API",
+        "Small chunks retrieve precisely but lack context; large chunks retrieve poorly",
+        "LLM answers need verifiable citations and must resist instructions hidden in documents",
+        "Re-running a failed ingestion must not duplicate vectors or graph data",
+        "Users need to see why an answer was produced, not just the text"
+      ]
+    },
+    "solution": {
+      "approach": [
+        "Asynchronous ingestion: the API validates and stores the upload, returns 202 Accepted, and a Celery worker does the heavy work",
+        "Hierarchical chunking: ~200-token child chunks are searched, ~1,000-token parent chunks are returned as context",
+        "Hybrid retrieval: Qdrant finds child chunks, then Neo4j relationships are traversed from entities in those chunks, bounded by a hop limit",
+        "Grounded generation: the model is told to answer only from supplied evidence, treat document text as untrusted, and cite exact IDs (P1, P2...)",
+        "Streaming UI: tokens, citations and graph data arrive as typed SSE events and render incrementally"
+      ],
+      "features": [
+        {
+          "name": "Document ingestion",
+          "description": "PDF, DOCX, TXT and Markdown with MIME-type, extension, size and empty-file validation, filename sanitising, UUID storage paths and SHA-256 duplicate detection."
+        },
+        {
+          "name": "Live ingestion progress",
+          "description": "Per-job stage, progress, attempts and errors, polled by the UI every 1.2 s; failed jobs can be retried."
+        },
+        {
+          "name": "Parent/child retrieval",
+          "description": "Child hits are grouped by parent, the best child per parent is kept, parents are ranked, and the full parent text is used as answer context."
+        },
+        {
+          "name": "Knowledge graph extraction",
+          "description": "OpenAI structured output into Pydantic models; typed relationships (ACQUIRED, FOUNDED, WORKS_FOR, LOCATED_IN, PARTNERS_WITH, PRODUCES, OWNS, SUPPLIES, INVESTED_IN, RELATED_TO) with evidence, confidence and source provenance."
+        },
+        {
+          "name": "Bounded multi-hop graph retrieval",
+          "description": "Defaults: 8 child results, 4 parent citations, 2 graph hops, 60 graph records, so latency and prompt size stay predictable."
+        },
+        {
+          "name": "Streaming grounded answers",
+          "description": "SSE events: retrieval, graph, token, citations, done, error. Only citation IDs actually used in the answer are persisted."
+        },
+        {
+          "name": "Token budget management",
+          "description": "Evidence context is built within a configured token budget before calling the model."
+        },
+        {
+          "name": "Interactive graph inspector",
+          "description": "Cytoscape.js view of retrieved entities and relationships, with colour-coded entity types, fit-to-view, and edge selection showing relationship type and extraction evidence."
+        },
+        {
+          "name": "Citation cards",
+          "description": "Expandable source cards showing filename, page/section, similarity score, matched passage and full parent context."
+        },
+        {
+          "name": "Retrieval scoping and cancellation",
+          "description": "Users choose which ready documents to search and can abort generation mid-stream."
+        },
+        {
+          "name": "Persistence and audit trail",
+          "description": "Conversations, messages and RetrievalRuns (question, vector hits, citations, graph data, latency) are stored in PostgreSQL."
+        },
+        {
+          "name": "Observability and health",
+          "description": "Request IDs, structured logs (structlog), Prometheus metrics, /health/live and /health/ready (checks PostgreSQL, Redis, Qdrant, Neo4j)."
+        },
+        {
+          "name": "Optional API-key auth",
+          "description": "APP_AUTH_MODE=api_key enforces an X-API-Key header using constant-time comparison."
+        }
+      ]
+    },
+    "architecture": {
+      "style": "Layered: API -> schemas -> database -> RAG/domain services -> infrastructure adapters",
+      "diagram": "Upload -> Celery job -> Parse -> Hierarchical chunks -> Qdrant vectors + Neo4j graph -> LangGraph retrieval -> Parent-context grounding -> OpenAI streaming answer -> Citations and provenance",
+      "layers": [
+        {
+          "name": "Frontend",
+          "tech": "Next.js 16, React 19, TypeScript, Tailwind v4",
+          "detail": "Three-panel workspace: documents, chat, graph"
+        },
+        {
+          "name": "API",
+          "tech": "FastAPI, async SQLAlchemy, Pydantic, Alembic",
+          "detail": "Ingest, documents, chat (SSE), graph endpoints; health and metrics"
+        },
+        {
+          "name": "Worker",
+          "tech": "Celery + Redis",
+          "detail": "Parse, chunk, embed, extract and index documents"
+        },
+        {
+          "name": "Relational store",
+          "tech": "PostgreSQL",
+          "detail": "Documents, jobs, parent/child chunks, conversations, messages, retrieval runs"
+        },
+        {
+          "name": "Vector store",
+          "tech": "Qdrant",
+          "detail": "Child-chunk embeddings and semantic search"
+        },
+        {
+          "name": "Graph store",
+          "tech": "Neo4j",
+          "detail": "Entities, relationships and provenance"
+        },
+        {
+          "name": "Orchestration",
+          "tech": "LangGraph",
+          "detail": "Retrieval state machine: vector + parent retrieval -> graph traversal"
+        },
+        {
+          "name": "Models",
+          "tech": "FastEmbed (BAAI/bge-small-en-v1.5) or OpenAI embeddings; OpenAI Responses API",
+          "detail": "Embeddings, entity extraction, answer generation"
+        }
+      ],
+      "flows": [
+        {
+          "name": "Ingestion flow",
+          "steps": [
+            "Upload and validate",
+            "Queue Celery job (HTTP 202)",
+            "Parse into structural blocks",
+            "Build parent/child chunks and persist",
+            "Embed children and upsert to Qdrant",
+            "Extract entities/relations from parents",
+            "Write graph and provenance to Neo4j",
+            "Mark document ready"
+          ]
+        },
+        {
+          "name": "Query flow",
+          "steps": [
+            "Embed question",
+            "Search Qdrant child chunks",
+            "Group by parent and rank",
+            "Traverse Neo4j from mentioned entities (bounded hops)",
+            "Build token-budgeted evidence context",
+            "Stream OpenAI answer over SSE",
+            "Validate and persist citations and retrieval run"
+          ]
+        }
+      ]
+    },
+    "techStack": {
+      "backend": [
+        "Python 3.12",
+        "FastAPI",
+        "SQLAlchemy (async)",
+        "Alembic",
+        "Pydantic Settings",
+        "Celery",
+        "LangGraph",
+        "structlog",
+        "Prometheus"
+      ],
+      "data": [
+        "PostgreSQL",
+        "Redis",
+        "Qdrant",
+        "Neo4j"
+      ],
+      "ai": [
+        "OpenAI Responses API",
+        "OpenAI structured output",
+        "FastEmbed / Hugging Face (BAAI/bge-small-en-v1.5)"
+      ],
+      "frontend": [
+        "Next.js 16",
+        "React 19",
+        "TypeScript 5.9",
+        "Tailwind CSS v4",
+        "Cytoscape.js",
+        "React Markdown",
+        "Lucide"
+      ],
+      "devops": [
+        "Docker",
+        "Docker Compose",
+        "Multi-stage builds",
+        "Non-root runtime image"
+      ],
+      "testing": [
+        "Pytest unit tests (parsing, extraction, chunking, streaming contracts)",
+        "Vitest"
+      ]
+    },
+    "keyDecisions": [
+      {
+        "decision": "Parent/child chunking",
+        "reason": "Small chunks give precise matching; returning the larger parent gives the model enough context to answer well."
+      },
+      {
+        "decision": "Deterministic IDs and idempotent ingestion",
+        "reason": "Retries replace Qdrant vectors and rebuild Neo4j document data instead of duplicating them."
+      },
+      {
+        "decision": "Bounded graph traversal",
+        "reason": "Hop and record limits keep latency and prompt size predictable on densely connected graphs."
+      },
+      {
+        "decision": "SSE over WebSockets",
+        "reason": "Streaming is one-directional, works over plain HTTP, and is simple to parse and cancel with AbortController."
+      },
+      {
+        "decision": "Local embeddings by default",
+        "reason": "FastEmbed removes per-token embedding cost and an external dependency; OpenAI embeddings stay available as a switch."
+      },
+      {
+        "decision": "Prompt-injection posture",
+        "reason": "Document content is explicitly treated as untrusted data and answers must cite exact evidence IDs."
+      },
+      {
+        "decision": "Local React state instead of a global store",
+        "reason": "A single-page workflow with one stream and one graph did not justify the overhead."
+      }
+    ],
+    "engineering": [
+      "Testing: Unit tests cover parsing, extraction, chunking and streaming contracts.",
+      "Deployment: Docker Compose orchestrates API, worker, PostgreSQL, Redis, Qdrant, Neo4j and frontend; the API container runs Alembic migrations before starting Uvicorn; frontend uses a three-stage standalone Next.js build.",
+      "Observability: Request IDs, structured logs, request-duration histograms, readiness checks across all four data services."
+    ],
+    "lessons": [
+      {
+        "challenge": "Coordinating four data stores (PostgreSQL, Redis, Qdrant, Neo4j) during ingestion",
+        "lesson": "Deterministic IDs plus replace-on-retry made partial failures recoverable without cleanup scripts."
+      },
+      {
+        "challenge": "Parsing a streamed response in the browser",
+        "lesson": "Wrote a custom SSE reader that buffers partial frames and dispatches typed handlers, isolated behind an API client adapter."
+      },
+      {
+        "challenge": "Keeping answers verifiable",
+        "lesson": "Citation IDs are scanned from the generated text and only valid, used ones are stored and shown."
+      },
+      {
+        "challenge": "Prompt size growth from parent chunks plus graph evidence",
+        "lesson": "Added explicit token budgeting when assembling context."
+      }
+    ],
+    "limitations": [
+      "Authorization is a single global API key: no users, tenants, or per-document/conversation ownership",
+      "Frontend does not send X-API-Key and has no auth flow",
+      "No runtime validation of API payloads on the frontend",
+      "Upload polling has no timeout; limited frontend test coverage",
+      "Initial migration is generated from SQLAlchemy metadata"
+    ],
+    "nextSteps": [
+      "Per-user/tenant ownership with JWT or OAuth, enforced on documents, conversations and retrievals",
+      "Server-side proxy for API credentials",
+      "Zod validation for API and SSE payloads",
+      "Reranking and retrieval evaluation (recall, faithfulness) on a labelled question set",
+      "Component, SSE-parser and Playwright end-to-end tests"
+    ],
+    "metrics": {
+      "note": "Only figures present in the code defaults; add measured numbers (latency, accuracy) once benchmarked.",
+      "items": [
+        {
+          "label": "Supported formats",
+          "value": "4 (PDF, DOCX, TXT, MD)"
+        },
+        {
+          "label": "Child / parent chunk size",
+          "value": "~200 / ~1,000 tokens"
+        },
+        {
+          "label": "Graph hops",
+          "value": "2 (default)"
+        },
+        {
+          "label": "Relationship types",
+          "value": "10"
+        },
+        {
+          "label": "Data services orchestrated",
+          "value": "4 + worker"
+        },
+        {
+          "label": "SSE event types",
+          "value": "6"
+        }
+      ]
+    },
+    "screenshots": [
+      {
+        "caption": "Three-panel workspace: documents, chat, graph",
+        "src": "<add>"
+      },
+      {
+        "caption": "Citation card with parent context",
+        "src": "<add>"
+      },
+      {
+        "caption": "Graph inspector with relationship evidence",
+        "src": "<add>"
+      }
+    ],
+    "links": {
+      "repository": "<add GitHub URL>",
+      "liveDemo": "<add demo / video URL>"
+    }
+  },
+  {
+    "id": "monlogement-ads-importer",
+    "title": "MonLogement Ads Importer",
+    "tagline": "A queue-driven pipeline that ingests real-estate listings from agency FTP drops (ZIP + pipe-delimited CSV), validates and geocodes them, processes their photos, and keeps a search index in sync.",
+    "role": "Backend Engineer",
+    "type": "Backend / Data pipeline",
+    "relatedProjectId": "2",
+    "tags": [
+      "Laravel",
+      "PHP",
+      "Queues",
+      "ETL",
+      "Meilisearch",
+      "Geospatial",
+      "Image Processing",
+      "S3",
+      "Data Pipeline"
+    ],
+    "summary": "Real-estate agencies publish listings in a vendor feed format: a ZIP (Annonces.csv, Photos.cfg, optional images folder) and an Agences.csv uploaded over FTP. This asynchronous, fault-tolerant pipeline turns those feeds into live, searchable listings without manual work. It is the import service behind the MonLogement platform.",
+    "problem": {
+      "context": "Real-estate agencies publish their listings in a vendor feed format: they upload a ZIP (Annonces.csv, Photos.cfg, optional images folder) and an Agences.csv over FTP. The platform needs these listings live and searchable without manual work. Feeds are large, messy and inconsistent: mixed encodings, a custom '!#' delimiter, 300+ columns, free-text localities that don't match official names, missing or wrong coordinates, inconsistent floor data, and photos delivered in several different ways. Listings also disappear from feeds and must be removed.",
+      "challenges": [
+        "Processing very large feeds without exhausting the queue or memory",
+        "Two imports for the same agency running at the same time",
+        "Removing listings that vanished from a feed without a delete flag",
+        "Unreliable coordinates and no geocoder budget",
+        "Keeping search consistent while writing many records",
+        "Dirty input: mixed encodings and a non-standard delimiter"
+      ]
+    },
+    "solution": {
+      "approach": [
+        "An asynchronous, fault-tolerant pipeline split into small single-purpose jobs on dedicated queues. Each stage validates its input, logs failures without blocking the rest of the feed, and hands off to the next stage."
+      ],
+      "features": [
+        {
+          "name": "Multi-mode photo ingestion",
+          "description": "Supports four photo delivery modes declared in Photos.cfg: FULL (images shipped in the ZIP), DIFF (timestamped file names so only changed photos are re-uploaded), URL and AR (remote download with timeout)."
+        },
+        {
+          "name": "Image optimisation",
+          "description": "MIME and 40 MB size validation, scale-down to 1440px, JPEG re-encode at quality 80, and a 341x256 thumbnail generated from the already-resized image. Temporary files are always cleaned in a finally block."
+        },
+        {
+          "name": "Fuzzy locality matching",
+          "description": "Normalises free-text city names (digit/letter spacing, zero-padded arrondissements, œ encoding issue), searches a Meilisearch index filtered by postal code, and falls back to SQL matching with saint/sainte to st/ste alias handling."
+        },
+        {
+          "name": "Geocoding and coordinate sanity checks",
+          "description": "Supplied coordinates are verified against the official commune boundary (geo.api.gouv.fr, with special handling for Paris/Lyon/Marseille arrondissements). Bad or missing ones are replaced by a random point inside the commune polygon (ray-casting; largest polygon for MultiPolygons) with a small jitter, and flagged as auto-filled."
+        },
+        {
+          "name": "Domain mapping",
+          "description": "Maps agency vocabulary to internal types (e.g. 'maison-villa' to house, 'vente de prestige' to sell), converts kWh and GES values to A-G energy and gas classes, derives facilities (lift, pool, cellar, parking count...), and resolves French administrative levels from postal codes including Corsica 2A/2B and overseas departments."
+        },
+        {
+          "name": "Data-quality rules",
+          "description": "Rows are skipped with a precise log line when postal code, locality, reference, price or agency is invalid; inconsistent floor / total-floor pairs are nulled; construction year is range-checked; HTML descriptions are sanitised on write with Purifier."
+        },
+        {
+          "name": "Error observability",
+          "description": "Row and image failures are persisted to an AdsImportingErrorLog table (type, message, stack trace, file, line, batch id, agency and technical id context) and pruned by a daily command."
+        },
+        {
+          "name": "Agency hierarchy support",
+          "description": "Listings are attributed to the child agency named in the row, falling back to the parent feed owner, and the user account falls back along the same chain. Cleanup covers both the agency and its sub-agencies."
+        }
+      ]
+    },
+    "architecture": {
+      "style": "Event-driven job pipeline with scheduled polling",
+      "layers": [
+        {
+          "name": "Scan",
+          "tech": "ScanJob (scheduled every 5 min)",
+          "detail": "Walks the FTP incoming directory, maps each folder to an agency via its ftp_username, and chains an agencies import and a ZIP processing job. Capped at 10 files per run and unique-locked to avoid overlapping runs."
+        },
+        {
+          "name": "Agencies sync",
+          "tech": "AgenciesImportJob → AgenciesImportChunkJob",
+          "detail": "Cleans the Agences.csv, streams it with Spatie Simple Excel and fans it out as a batch of 1000-row chunk jobs."
+        },
+        {
+          "name": "Unpack & validate",
+          "tech": "CompressedFileProcessingJob",
+          "detail": "Archives the ZIP under a dated processed folder, extracts it to a timestamped directory, validates required files, reads the photo mode from Photos.cfg, and normalises the CSV (encoding detection, unsupported chars, custom delimiter)."
+        },
+        {
+          "name": "Self-scheduling batches",
+          "tech": "ProcessCsvBatchJob",
+          "detail": "Creates batches of 5 chunk jobs x 500 rows, then re-dispatches itself 30s later until the file is exhausted, so the queue is never flooded. The last iteration schedules cleanup."
+        },
+        {
+          "name": "Row processing",
+          "tech": "ProcessCsvJob",
+          "detail": "Per row: validates, maps types, resolves region/department from postal code, matches the locality, resolves coordinates, then upserts the listing and its facilities inside a DB transaction and indexes it."
+        },
+        {
+          "name": "Image processing",
+          "tech": "ProcessImageJob (images-processing queue)",
+          "detail": "Resizes, recompresses and thumbnails up to 10 photos per listing and uploads them to object storage."
+        },
+        {
+          "name": "Reconciliation cleanup",
+          "tech": "CleanupJob → CleanupImagesJob",
+          "detail": "Deletes listings no longer present in the feed (with their images and index entries) and resets the import flag for the next run."
+        }
+      ],
+      "flows": [
+        {
+          "name": "Import pipeline",
+          "steps": [
+            "Scan",
+            "Agencies sync",
+            "Unpack & validate",
+            "Self-scheduling batches",
+            "Row processing",
+            "Image processing",
+            "Reconciliation cleanup"
+          ]
+        }
+      ],
+      "queues": [
+        "default",
+        "csv-processing",
+        "images-processing"
+      ],
+      "scheduledMaintenance": [
+        "ScanJob every 5 minutes",
+        "Cleanup of extracted directories older than a week (daily)",
+        "Cleanup of old processed files (daily)",
+        "Pruning of import error logs (daily)",
+        "Orphaned object-storage file cleanup command"
+      ]
+    },
+    "techStack": {
+      "backend": [
+        "PHP 8.2",
+        "Laravel 11"
+      ],
+      "queue": [
+        "Laravel Queues (database driver)",
+        "Job Batching",
+        "Job Chaining",
+        "Task Scheduler"
+      ],
+      "search": [
+        "Laravel Scout",
+        "Meilisearch"
+      ],
+      "storage": [
+        "S3-compatible object storage (DigitalOcean Spaces)",
+        "Flysystem S3 adapter"
+      ],
+      "data": [
+        "MySQL",
+        "Eloquent ORM",
+        "laravel-eloquent-spatial"
+      ],
+      "libraries": [
+        "Intervention Image (Imagick)",
+        "Spatie Simple Excel",
+        "Mews Purifier",
+        "Predis"
+      ],
+      "externalApis": [
+        "geo.api.gouv.fr (French government geo API)"
+      ],
+      "testing": [
+        "Pest",
+        "Laravel Pint",
+        "Laravel Pail"
+      ]
+    },
+    "challenges": [
+      {
+        "challenge": "Processing very large feeds without exhausting the queue or memory",
+        "solution": "Streamed CSV reading with fgetcsv, 500-row chunk jobs grouped into small batches, and a self-rescheduling batch dispatcher with a 30s delay instead of enqueueing everything at once.",
+        "outcome": "Predictable memory use and back-pressure regardless of file size; failures are isolated to a chunk (allowFailures)."
+      },
+      {
+        "challenge": "Two imports for the same agency running at the same time",
+        "solution": "ShouldBeUnique on ScanJob and on the ZIP job (keyed by agency UUID, 1h lock), WithoutOverlapping middleware keyed by agency on chunk jobs, and chained jobs to preserve agencies-before-listings order.",
+        "outcome": "No duplicate or interleaved writes per agency."
+      },
+      {
+        "challenge": "Removing listings that vanished from a feed without a delete flag",
+        "solution": "Mark-and-sweep: every upsert sets is_imported = true; the final cleanup job deletes records still false for that agency tree (chunks of 1000, images deleted from storage in batches of 100 via dedicated jobs, DB rows and search index removed in a transaction), then resets the flag.",
+        "outcome": "Catalogue always mirrors the latest feed, and storage does not accumulate orphaned photos."
+      },
+      {
+        "challenge": "Unreliable coordinates and no geocoder budget",
+        "solution": "Validate against official boundaries, otherwise generate a point inside the polygon so map pins never land outside the right town.",
+        "outcome": "All listings are map-ready and consistently placed; approximate points are marked with coordinates_auto_fill."
+      },
+      {
+        "challenge": "Keeping search consistent while writing many records",
+        "solution": "Wrap writes in withoutSyncingToSearch, then trigger a single searchable() call after the listing and its facilities are saved.",
+        "outcome": "One index update per listing instead of several."
+      },
+      {
+        "challenge": "Dirty input: mixed encodings and a non-standard delimiter",
+        "solution": "Line-by-line encoding detection (UTF-8 / ISO-8859-1 / Windows-1252), conversion to UTF-8, stripping of invalid bytes, and delimiter rewriting to a single character before parsing.",
+        "outcome": "Accents and special characters survive end to end."
+      }
+    ],
+    "engineering": [
+      "Single-responsibility jobs with explicit constructors and typed parameters",
+      "Dedicated queues per workload type so heavy image work cannot starve CSV processing",
+      "Idempotent upserts keyed on the agency technical id",
+      "DB transactions around listing writes",
+      "External HTTP calls with timeouts and retries",
+      "Scheduled housekeeping commands for disk and log growth",
+      "Configuration-driven city code mapping (composite cities enum + config)"
+    ],
+    "dataModel": [
+      "Agency (with parent)",
+      "User",
+      "Realestate",
+      "RealestateImage",
+      "RealestateType",
+      "AdType",
+      "Facility",
+      "Area (region / department / commune)",
+      "AdsImportingErrorLog"
+    ],
+    "metrics": {
+      "note": "Fill with real production numbers before publishing; none are derivable from the code.",
+      "items": [
+        {
+          "label": "Listings processed per day",
+          "value": null
+        },
+        {
+          "label": "Agencies connected",
+          "value": null
+        },
+        {
+          "label": "Average import time (minutes)",
+          "value": null
+        },
+        {
+          "label": "Images processed",
+          "value": null
+        }
+      ]
+    },
+    "links": {
+      "repository": null,
+      "liveDemo": null
+    }
+  },
+  {
+    "id": "monlogement-geo-boundaries-pipeline",
+    "title": "MonLogement — French Administrative Boundaries to Mapbox Vector Tiles",
+    "tagline": "A Laravel job pipeline that turns the official French administrative dataset into regions, departments and communes in the database, and publishes their borders as Mapbox vector tiles.",
+    "role": "Backend Engineer",
+    "type": "Backend / Geospatial data pipeline",
+    "relatedProjectId": "2",
+    "tags": [
+      "Laravel",
+      "Queues",
+      "GIS",
+      "GDAL / ogr2ogr",
+      "Mapbox Tiling Service",
+      "Vector Tiles",
+      "GeoJSON",
+      "Data Pipeline"
+    ],
+    "summary": "MonLogement lets users search listings by region, department and commune and see those areas as borders on a map. I built the pipeline that extracts the official French boundary dataset, converts and cleans it with GDAL, stores each area with its bounding box, and pushes the shapes to Mapbox as a tileset so borders render as fast vector tiles instead of heavy GeoJSON.",
+    "problem": {
+      "context": "Area search and area borders need authoritative geometry for roughly 35,000 communes plus departments and regions. The official source is a large national GeoPackage in the Lambert-93 projection, while Mapbox expects WGS84 lon/lat. Serving the raw polygons to the browser as GeoJSON would be far too heavy, and the work is too long-running to do inside a web request.",
+      "challenges": [
+        "Official data ships as one large GeoPackage with many layers in EPSG:2154 (Lambert-93), not the EPSG:4326 that web maps use",
+        "Commune polygons are too large to send to the browser as plain GeoJSON",
+        "The app needs each area's name, code, level and bounding box for search and for fitting the map view",
+        "Mapbox tileset sources expect line-delimited GeoJSON, not a single FeatureCollection",
+        "Conversion, upload and tile publishing are long-running and must be retryable without blocking the app",
+        "Credentials for the Mapbox API must stay out of code and logs"
+      ]
+    },
+    "solution": {
+      "approach": [
+        "Treat the dataset as an ETL pipeline of small queued Laravel jobs, each wrapping one GDAL or HTTP step, so every stage can fail, retry and be re-run on its own.",
+        "Reproject once at extraction (EPSG:2154 to EPSG:4326, XY only, 6-decimal coordinate precision) and keep everything downstream in WGS84.",
+        "Split the output by purpose: attributes and bounding boxes go to the database for search; shapes go to Mapbox as vector tiles for rendering."
+      ],
+      "features": [
+        {
+          "name": "Layer extraction from the official GeoPackage",
+          "description": "ogr2ogr loops over the layers of the IGN Admin Express GeoPackage (region, departement, commune, epci, arrondissement, canton and their chef-lieu point layers) and writes one GeoJSON per layer, reprojected to EPSG:4326 with a fixed coordinate precision to shrink file size."
+        },
+        {
+          "name": "Layer inspection before processing",
+          "description": "ogrinfo summary mode is used to check feature counts, fields and geometry types of each file before the import jobs rely on them."
+        },
+        {
+          "name": "Bounding boxes in the database",
+          "description": "An ogr2ogr SQLite-dialect query exports name, code, level and ST_MinX / ST_MinY / ST_MaxX / ST_MaxY per area to CSV, which the importer loads so the map can fit to an area and search can filter spatially without reading geometries."
+        },
+        {
+          "name": "Line-delimited GeoJSON for tiling",
+          "description": "Each level (regions, departments, communes) is converted to GeoJSONSeq, one feature per line, which is the format a Mapbox Tiling Service tileset source accepts."
+        },
+        {
+          "name": "Tileset source upload",
+          "description": "The line-delimited file is uploaded as a multipart request to the Mapbox Tilesets API (sources endpoint) from a Laravel job, one source per level."
+        },
+        {
+          "name": "Vector tile borders on the map",
+          "description": "Published tilesets are drawn as line and fill layers in Mapbox GL, so region, department and commune borders stream as tiles at the zoom levels the user is viewing."
+        }
+      ]
+    },
+    "architecture": {
+      "style": "Sequential queued job pipeline wrapping GDAL command-line tools and the Mapbox Tilesets API",
+      "diagram": "Admin Express GeoPackage (EPSG:2154) -> ogr2ogr per layer -> GeoJSON (EPSG:4326) -> [bbox CSV -> database] and [GeoJSONSeq -> Mapbox tileset source -> tileset -> vector tiles -> Mapbox GL layers]",
+      "layers": [
+        {
+          "name": "Source data",
+          "tech": "IGN Admin Express, GeoPackage, Lambert-93",
+          "detail": "Official edition dated 2025-09-16, containing administrative layers and their chef-lieu points."
+        },
+        {
+          "name": "Extraction job",
+          "tech": "Laravel job, ogr2ogr (GDAL)",
+          "detail": "Iterates the layer list and writes one reprojected GeoJSON per layer."
+        },
+        {
+          "name": "Inspection and bbox job",
+          "tech": "ogrinfo, ogr2ogr SQLite dialect",
+          "detail": "Verifies each file and exports name, code, level and bounding box to CSV."
+        },
+        {
+          "name": "Import job",
+          "tech": "Laravel queue, MySQL",
+          "detail": "Loads areas and bounding boxes into the area tables used by search and map fitting."
+        },
+        {
+          "name": "Conversion job",
+          "tech": "ogr2ogr GeoJSONSeq",
+          "detail": "Produces line-delimited GeoJSON for each level."
+        },
+        {
+          "name": "Publish job",
+          "tech": "Mapbox Tilesets API (Tiling Service)",
+          "detail": "Uploads each level as a tileset source over HTTP so Mapbox can build vector tiles from it."
+        },
+        {
+          "name": "Map rendering",
+          "tech": "Mapbox GL JS",
+          "detail": "Vector tile source with line layers for borders and highlight on the selected area."
+        }
+      ],
+      "keyBoundaries": [
+        "Database holds attributes and bounding boxes for search; Mapbox holds geometry for rendering. The app never loads polygons just to draw a border.",
+        "GDAL steps run as external processes behind jobs, so a conversion failure is a failed job with a log, not a failed web request."
+      ],
+      "flows": [
+        {
+          "name": "Boundary refresh pipeline",
+          "steps": [
+            "Download the new Admin Express GeoPackage",
+            "Extract each layer to GeoJSON in EPSG:4326",
+            "Inspect layers with ogrinfo",
+            "Export name, code, level and bounding box to CSV",
+            "Import areas and bounding boxes into the database",
+            "Convert each level to line-delimited GeoJSON",
+            "Upload each file as a Mapbox tileset source",
+            "Publish the tileset and use it as a vector source in Mapbox GL"
+          ]
+        }
+      ],
+      "queues": [
+        "default"
+      ]
+    },
+    "techStack": {
+      "backend": [
+        "PHP",
+        "Laravel",
+        "Laravel Queues"
+      ],
+      "geospatial": [
+        "GDAL (ogr2ogr, ogrinfo)",
+        "GeoPackage",
+        "GeoJSON / GeoJSONSeq",
+        "EPSG:2154 to EPSG:4326"
+      ],
+      "maps": [
+        "Mapbox Tiling Service (Tilesets API)",
+        "Mapbox vector tiles",
+        "Mapbox GL JS"
+      ],
+      "data": [
+        "MySQL",
+        "CSV import"
+      ],
+      "source": [
+        "IGN Admin Express (official French administrative boundaries)"
+      ]
+    },
+    "keyDecisions": [
+      {
+        "decision": "Vector tiles instead of serving GeoJSON to the browser",
+        "reason": "Commune borders for the whole country are far too large as GeoJSON. Tiles load only what the current view needs and simplify automatically by zoom level.",
+        "tradeoff": "Depends on an external tiling service and a publish step whenever the boundaries change."
+      },
+      {
+        "decision": "Reproject once with ogr2ogr at extraction",
+        "reason": "Every later stage works in EPSG:4326, so the database, the CSV and the tiles all agree and no runtime reprojection is needed.",
+        "tradeoff": "Source geometry in Lambert-93 is not kept in the app; re-extract from the GeoPackage if it is ever needed."
+      },
+      {
+        "decision": "Fixed coordinate precision (6 decimals)",
+        "reason": "About 0.1 m of precision is more than a border needs and keeps files and tiles much smaller.",
+        "tradeoff": "Not suitable for survey-grade use."
+      },
+      {
+        "decision": "Store bounding boxes in the database",
+        "reason": "Fit-to-area and spatial filtering use four numbers per area instead of loading a polygon.",
+        "tradeoff": "Boxes must be regenerated with each dataset refresh."
+      },
+      {
+        "decision": "Small queued jobs per step",
+        "reason": "Each GDAL or HTTP call can be retried or re-run on its own, and the long work stays off the web request path.",
+        "tradeoff": "More job classes and a need to keep stage order explicit."
+      }
+    ],
+    "challenges": [
+      {
+        "challenge": "National dataset in a projected coordinate system",
+        "solution": "Reproject to EPSG:4326 and drop Z/M dimensions at extraction, with a fixed coordinate precision.",
+        "outcome": "Files load directly into Mapbox and the database without further conversion."
+      },
+      {
+        "challenge": "Tileset source rejects a single large FeatureCollection",
+        "solution": "Convert each level to line-delimited GeoJSON (GeoJSONSeq) before upload.",
+        "outcome": "Large communes layer uploads as a streamable file of one feature per line."
+      },
+      {
+        "challenge": "Getting search and map fitting without reading geometry",
+        "solution": "Compute min/max X and Y per area with an SQLite-dialect query in ogr2ogr and export to CSV.",
+        "outcome": "Bounding boxes load into the database with name, code and level."
+      },
+      {
+        "challenge": "Secrets in command lines",
+        "solution": "Mapbox secret token read from environment configuration by the job, never written in code, logs or the repository.",
+        "outcome": "Tokens can be rotated without code changes."
+      }
+    ],
+    "engineering": [
+      "One job per pipeline step, each wrapping a single GDAL command or API call",
+      "Reproducible layer extraction driven by an explicit list of layers",
+      "Inspection step with ogrinfo before data is imported",
+      "Secrets supplied through environment configuration",
+      "Dataset edition recorded in the source file name for traceability"
+    ],
+    "dataModel": [
+      "Area (region / department / commune) with code, name, level and bounding box"
+    ],
+    "metrics": {
+      "note": "Add measured numbers (feature counts, tile size, refresh duration) before publishing; none are derivable from the commands.",
+      "items": [
+        {
+          "label": "Administrative levels published",
+          "value": "3 (regions, departments, communes)"
+        },
+        {
+          "label": "Coordinate system",
+          "value": "EPSG:2154 to EPSG:4326"
+        },
+        {
+          "label": "Coordinate precision",
+          "value": "6 decimals"
+        },
+        {
+          "label": "Pipeline refresh duration",
+          "value": null
+        }
+      ]
+    },
+    "nextSteps": [
+      "Automate dataset refresh when IGN publishes a new Admin Express edition",
+      "Add tileset recipe publishing and job status polling to the pipeline",
+      "Record feature counts per run and alert on unexpected drops"
+    ],
+    "links": {
+      "repository": null,
+      "liveDemo": "https://monlogement.com/"
+    }
+  },
+  {
+    "id": "blindlove-ai-matchmaking",
+    "title": "Blindlove — AI Matchmaking Engine",
+    "tagline": "A hybrid matching system for an anonymous dating app: weighted preference filtering narrows the pool, then Redis vector search ranks candidates by semantic profile similarity.",
+    "role": "Lead Backend Developer and AI Architect",
+    "type": "Backend / AI matching",
+    "relatedProjectId": "3",
+    "tags": [
+      "NestJS",
+      "Redis Vector Search",
+      "Hugging Face",
+      "Embeddings",
+      "MongoDB",
+      "Socket.io",
+      "Matchmaking",
+      "Real-time"
+    ],
+    "summary": "Blindlove is an anonymous dating platform. I designed and built its matchmaking backend: user bios, interests and preferences are turned into vector embeddings with Hugging Face sentence-transformers and indexed in Redis Stack. A hybrid algorithm combines weighted-preference filtering, bitmap interest scoring, cosine similarity and K-nearest-neighbour vector search, and the best matches are cached in Redis for fast retrieval.",
+    "problem": {
+      "context": "In an anonymous dating app there are no photos or visible profiles to browse, so match quality depends almost entirely on how well the system understands what a person wrote and prefers. Filters alone match on declared fields and miss semantic similarity between free-text bios and interests, and the matching has to stay fast for many concurrent users.",
+      "challenges": [
+        "Go beyond exact-field filtering and match on the meaning of bios and interests",
+        "Keep matching fast and scalable for many concurrent users",
+        "Keep embeddings fresh when a user changes their profile",
+        "Run real-time chat and notifications across multiple Node.js processes without duplicate connections or duplicate jobs",
+        "Support multiple languages across every application layer"
+      ]
+    },
+    "solution": {
+      "approach": [
+        "Pool first: narrow candidates with general filtration using weighted preferences",
+        "Score with bitmap interests and cosine similarity",
+        "Re-rank semantically with Redis Vector Search over Hugging Face embeddings",
+        "Store top matches per user in Redis sorted lists with their similarity scores",
+        "Process match requests through a Redis queue so matching never blocks the API"
+      ],
+      "features": [
+        {
+          "name": "Hybrid matching algorithm",
+          "description": "Combines weighted preferences, cosine similarity, bitmap interest scoring and vector search, plus semantic similarity scoring that blends traditional metrics with embedding distances."
+        },
+        {
+          "name": "Profile tokenization and embeddings",
+          "description": "A pipeline using Hugging Face sentence-transformers converts user bios, interests and preferences into searchable embeddings."
+        },
+        {
+          "name": "Redis vector index",
+          "description": "A vector indexing schema in Redis Stack (RediSearch) supports fast K-nearest-neighbour queries, exposed through a vector search API for semantic profile matching and similarity queries."
+        },
+        {
+          "name": "Automated reindexing",
+          "description": "User embeddings are regenerated and reindexed automatically when a profile changes."
+        },
+        {
+          "name": "Fast match retrieval",
+          "description": "Top matches are stored in Redis sorted lists with vector similarity scores; match requests are managed through a Redis list-based queue."
+        },
+        {
+          "name": "Real-time layer",
+          "description": "Socket.io chat with a single socket connection per user, plus Server-Sent Events for general notifications with a custom heartbeat and connection pooling."
+        },
+        {
+          "name": "Multi-language support",
+          "description": "Custom interceptor, decorator and localization service, i18n static translation files, and multi-language push notifications with notification groups in a single API service."
+        },
+        {
+          "name": "Chat media optimization",
+          "description": "A service that processes and optimizes images and video for chat delivery."
+        },
+        {
+          "name": "Admin panel APIs",
+          "description": "User, content and report management APIs, using aggregated queries and pagination for data virtualization."
+        }
+      ]
+    },
+    "architecture": {
+      "style": "Event-driven NestJS backend with Redis Stack as the matching and real-time backbone",
+      "diagram": "Profile change -> embedding service (Hugging Face) -> Redis vector index; match request -> Redis queue -> weighted filtering -> cosine / bitmap scoring + vector KNN -> top matches in Redis sorted lists; clients <- Socket.io (Redis adapter) and SSE",
+      "layers": [
+        {
+          "name": "API",
+          "tech": "NestJS, TypeScript",
+          "detail": "Modular services with a shared utils module, event listeners for module decoupling, and a custom JWT guard (Passport) with token blacklisting."
+        },
+        {
+          "name": "Matching",
+          "tech": "Redis Stack, RediSearch",
+          "detail": "Weighted filtering and bitmap/cosine scoring, then vector KNN search; top matches cached in sorted lists; requests handled via a Redis queue."
+        },
+        {
+          "name": "Embeddings",
+          "tech": "Hugging Face sentence-transformers, Python",
+          "detail": "Generates embeddings from bios, interests and preferences; reindexes on profile updates."
+        },
+        {
+          "name": "Real-time",
+          "tech": "Socket.io, SSE, Redis adapter",
+          "detail": "One socket per user; Redis adapter keeps clustered processes in sync; SSE with heartbeat for notifications."
+        },
+        {
+          "name": "Persistence",
+          "tech": "MongoDB",
+          "detail": "Aggregation pipelines with indexing and subdocuments to minimize lookups; patch writes for partial updates."
+        },
+        {
+          "name": "Scaling",
+          "tech": "Node.js cluster mode, Redis",
+          "detail": "Horizontal scaling across CPU cores; cron jobs guarded by Redis distributed locks."
+        }
+      ],
+      "flows": [
+        {
+          "name": "Matching flow",
+          "steps": [
+            "Match request queued in Redis",
+            "Pool candidates with weighted preference filters",
+            "Score with bitmap interests and cosine similarity",
+            "Run vector KNN search over profile embeddings",
+            "Combine scores into a hybrid similarity result",
+            "Store top matches in a Redis sorted list"
+          ]
+        },
+        {
+          "name": "Profile indexing flow",
+          "steps": [
+            "User creates or edits profile",
+            "Bio, interests and preferences tokenized",
+            "Embedding generated with sentence-transformers",
+            "Vector index updated in Redis"
+          ]
+        }
+      ]
+    },
+    "techStack": {
+      "backend": [
+        "NestJS",
+        "TypeScript",
+        "Node.js cluster mode",
+        "JWT + Passport"
+      ],
+      "ai": [
+        "Hugging Face Transformers (sentence-transformers)",
+        "Redis Vector Search (RediSearch)",
+        "Python"
+      ],
+      "data": [
+        "MongoDB",
+        "Redis Stack"
+      ],
+      "realtime": [
+        "Socket.io (Redis adapter)",
+        "Server-Sent Events"
+      ],
+      "frontend": [
+        "React.js"
+      ],
+      "devops": [
+        "AWS"
+      ]
+    },
+    "keyDecisions": [
+      {
+        "decision": "Hybrid matching instead of pure vector search",
+        "reason": "Weighted filtering keeps hard preferences respected and shrinks the candidate pool, while embeddings add semantic understanding of free-text profiles."
+      },
+      {
+        "decision": "Redis Stack for vectors, queues, caching and real-time",
+        "reason": "One in-memory system covers KNN search, match queues, sorted top-match lists, the Socket.io adapter and distributed locks."
+      },
+      {
+        "decision": "Embedding model chosen for accuracy versus inference speed",
+        "reason": "The model was selected to balance match quality against latency for production use."
+      },
+      {
+        "decision": "Event-driven module decoupling",
+        "reason": "Event listeners separate services and modules, which keeps the codebase maintainable as features grow."
+      },
+      {
+        "decision": "SSE for general notifications, Socket.io for chat",
+        "reason": "One-directional notifications do not need a bidirectional socket; chat does."
+      }
+    ],
+    "challenges": [
+      {
+        "challenge": "Duplicate socket connections per user",
+        "solution": "Single socket connection per user management."
+      },
+      {
+        "challenge": "Socket events across a clustered Node.js deployment",
+        "solution": "Node.js cluster mode with the Socket.io Redis adapter for synchronization."
+      },
+      {
+        "challenge": "Cron jobs running more than once in a clustered deployment",
+        "solution": "Cron jobs handled on a single process with Redis distributed locks."
+      },
+      {
+        "challenge": "Expensive MongoDB reads and writes",
+        "solution": "Optimized aggregation pipelines with indexing and subdocuments, and patch writes for partial updates."
+      }
+    ],
+    "engineering": [
+      "TypeScript interfaces and type aliases throughout the codebase",
+      "Custom Redis service extending the Redis client with vector operations",
+      "Redis transport for real-time features",
+      "Shared utils module for reuse across the application",
+      "Custom JWT guard with token blacklisting",
+      "Real-time fallback mechanisms for communication reliability"
+    ],
+    "outcomes": [
+      "Hybrid matching combining weighted filters, cosine similarity and vector search",
+      "Scalable real-time infrastructure supporting chat, notifications and matchmaking",
+      "Integrating Hugging Face embeddings improved match quality by 40%",
+      "65% improvement in match relevance using vector embeddings versus traditional methods"
+    ],
+    "metrics": {
+      "note": "Both figures come from the project notes; confirm how each was measured before publishing.",
+      "items": [
+        {
+          "label": "Match quality improvement (Hugging Face embeddings)",
+          "value": "40%"
+        },
+        {
+          "label": "Match relevance improvement (vectors vs traditional)",
+          "value": "65%"
+        }
+      ]
+    },
+    "links": {
+      "repository": null,
+      "liveDemo": "https://www.blindlove.io/"
+    }
+  },
+  {
+    "id": "roomco-legacy-modernization",
+    "title": "Roomco — Legacy Platform Modernization",
+    "tagline": "Migrating a legacy Express.js and Node 12 platform to a NestJS modular monolith, merging two Express apps into one, extracting moderation microservices, and modernizing the MongoDB data layer.",
+    "role": "Lead Developer and Migration Architect",
+    "type": "Migration / Architecture modernization",
+    "status": "Backend migration delivered; Firebase-to-MongoDB user consolidation planned as a roadmap",
+    "relatedProjectId": "4",
+    "tags": [
+      "NestJS",
+      "TypeScript",
+      "Node.js",
+      "Modular Monolith",
+      "Microservices",
+      "MongoDB",
+      "Migration",
+      "Content Moderation",
+      "FastAPI",
+      "Redis Pub/Sub"
+    ],
+    "summary": "Roomco is a social and chat application for young users. Its backend had grown on Node 12 with outdated dependencies, two separate Express apps (one for the chat sockets, one for the API), a legacy MongoDB version and weak data structures. I led the move to a NestJS and TypeScript modular monolith on a current Node.js version, merged the two apps into one, extracted content moderation into independent microservices, upgraded and cleaned up MongoDB, and designed the roadmap for consolidating users from Firebase and the legacy Mongo database into a better-structured, performance-optimized schema.",
+    "problem": {
+      "context": "The platform ran on an aging stack: Node 12 with outdated dependencies, plain Express.js without static typing, and separate Express applications for the socket server and the REST API. Users lived in two places, a Firebase database and a legacy MongoDB with outdated and poorly designed data structures. Each of these made the system harder to change safely and added operational complexity.",
+      "challenges": [
+        "Upgrade Node.js from 12 to 22 and resolve outdated or incompatible dependencies without breaking behaviour",
+        "Migrate from Express.js to NestJS and TypeScript while the product kept running",
+        "Remove the complexity of running a separate chat-socket Express app alongside the API Express app",
+        "Isolate heavy content moderation (media and text) from the main application",
+        "Upgrade a legacy MongoDB version and fix outdated, badly structured data",
+        "Plan the merge of users from Firebase and legacy MongoDB into one optimized structure",
+        "Bring the development team along with the new architecture"
+      ]
+    },
+    "solution": {
+      "approach": [
+        "Migrate incrementally to NestJS with TypeScript under a documented migration strategy supervised across the team",
+        "Merge the chat socket app and the API app into a single NestJS modular monolith instead of splitting into more services",
+        "Extract only what benefits from independent scaling, content moderation, into separate microservices",
+        "Upgrade MongoDB and repair data structures, then roadmap the user consolidation from Firebase and legacy Mongo",
+        "Document the patterns and train the team so the new architecture is maintainable"
+      ],
+      "features": [
+        {
+          "name": "Express to NestJS migration",
+          "description": "Led the migration of the codebase from Express.js to NestJS with TypeScript, defining the migration plan, supervising the team with regular code reviews, and documenting patterns and best practices."
+        },
+        {
+          "name": "Node.js 12 to 22 upgrade",
+          "description": "Upgraded Node.js across ten major versions with comprehensive testing, resolving outdated dependencies along the way."
+        },
+        {
+          "name": "Modular monolith merging chat and API",
+          "description": "Combined the separate chat-socket Express app and API Express app into one NestJS application organised in modules, removing the duplicated infrastructure and cross-app complexity."
+        },
+        {
+          "name": "Moderation microservices",
+          "description": "Content moderation extracted into independent services. A FastAPI service with a fast.ai nudity-detection model scans images in real time, communicating with NestJS over Redis Pub/Sub; text moderation is a separate service."
+        },
+        {
+          "name": "MongoDB upgrade and data cleanup",
+          "description": "Upgraded the legacy MongoDB version to a current one and resolved outdated and poorly designed data structures."
+        },
+        {
+          "name": "User consolidation roadmap",
+          "description": "A roadmap for merging users from Firebase and the legacy MongoDB into a more comprehensive, performance-optimized MongoDB data structure."
+        },
+        {
+          "name": "AI chatbots",
+          "description": "Chatbots built on the ChatGPT SSE API with streaming responses, multi-language replies validated with JSON schemas, and image generation."
+        },
+        {
+          "name": "Knowledge transfer",
+          "description": "A migration guide, training materials and mentoring on NestJS, TypeScript and microservices."
+        }
+      ]
+    },
+    "architecture": {
+      "style": "NestJS modular monolith with extracted moderation microservices",
+      "diagram": "Clients -> NestJS modular monolith (REST API + Socket.io chat modules, one app) -> MongoDB; NestJS -> Redis Pub/Sub -> FastAPI moderation services (image: fast.ai nudity detection, text moderation) -> results back to NestJS",
+      "layers": [
+        {
+          "name": "Application",
+          "tech": "NestJS, TypeScript, Node.js 22",
+          "detail": "One modular monolith replacing the separate API and chat-socket Express apps."
+        },
+        {
+          "name": "Real-time",
+          "tech": "Socket.io",
+          "detail": "Chat gateway living as a module inside the same application as the API."
+        },
+        {
+          "name": "Moderation services",
+          "tech": "FastAPI, fast.ai, Redis Pub/Sub",
+          "detail": "Independent services for media and text moderation that scale separately from the main app."
+        },
+        {
+          "name": "AI features",
+          "tech": "ChatGPT API (SSE)",
+          "detail": "Streaming chatbots with JSON-schema-validated multi-language responses and image generation."
+        },
+        {
+          "name": "Data",
+          "tech": "MongoDB",
+          "detail": "Upgraded from a legacy version with cleaned-up data structures; target of the Firebase and legacy-Mongo user consolidation."
+        }
+      ],
+      "flows": [
+        {
+          "name": "Modernization path",
+          "steps": [
+            "Upgrade Node.js 12 to 22 and resolve outdated dependencies",
+            "Migrate Express.js to NestJS with TypeScript",
+            "Merge the chat-socket and API apps into a modular monolith",
+            "Extract media and text moderation into microservices",
+            "Upgrade MongoDB and fix legacy data structures",
+            "Roadmap: consolidate Firebase and legacy Mongo users into the new schema"
+          ]
+        },
+        {
+          "name": "Image moderation flow",
+          "steps": [
+            "User uploads an image",
+            "NestJS publishes a scan request on Redis Pub/Sub",
+            "FastAPI service runs the fast.ai nudity-detection model",
+            "Result returned over Redis Pub/Sub",
+            "NestJS allows or blocks the content"
+          ]
+        }
+      ]
+    },
+    "techStack": {
+      "backend": [
+        "NestJS",
+        "TypeScript",
+        "Node.js 22",
+        "Socket.io"
+      ],
+      "ai": [
+        "ChatGPT API (SSE streaming, image generation)",
+        "fast.ai",
+        "FastAPI"
+      ],
+      "data": [
+        "MongoDB",
+        "Redis Pub/Sub",
+        "Firebase (legacy source)"
+      ]
+    },
+    "keyDecisions": [
+      {
+        "decision": "Modular monolith instead of splitting into more services",
+        "reason": "The separate chat-socket and API Express apps were creating complexity. One NestJS application with clear modules keeps deployment and development simple."
+      },
+      {
+        "decision": "Microservices only for content moderation",
+        "reason": "Moderation is a distinct, compute-heavy concern that benefits from a Python and ML stack and independent scaling, so it is the one part extracted from the monolith."
+      },
+      {
+        "decision": "NestJS with TypeScript for the rewrite target",
+        "reason": "Static typing and an opinionated module structure improve maintainability and reduce runtime errors."
+      },
+      {
+        "decision": "Redis Pub/Sub between NestJS and the moderation services",
+        "reason": "Lightweight asynchronous messaging suits real-time image scanning without coupling the services."
+      },
+      {
+        "decision": "Roadmap for user consolidation rather than a one-shot merge",
+        "reason": "Users in Firebase and legacy MongoDB need a carefully planned move into a new structure, so it is staged."
+      }
+    ],
+    "challenges": [
+      {
+        "challenge": "Upgrading Node.js across ten major versions",
+        "solution": "Resolved outdated dependencies and validated the upgrade with comprehensive testing.",
+        "outcome": "Reported as completed without breaking changes."
+      },
+      {
+        "challenge": "Migrating the whole codebase to NestJS while the team kept delivering",
+        "solution": "A documented migration strategy, regular code reviews, a migration guide and training sessions.",
+        "outcome": "Reported as completed with zero downtime."
+      }
+    ],
+    "engineering": [
+      "Documented migration plan, guide of patterns and best practices, and training materials",
+      "Regular code reviews supervising the team through the migration",
+      "Type-safe architecture with TypeScript",
+      "JSON schema validation of multi-language chatbot responses",
+      "Independently scalable moderation microservices"
+    ],
+    "outcomes": [
+      "Entire codebase migrated from Express.js to NestJS with zero downtime",
+      "Node.js upgraded across 10 major versions without breaking changes",
+      "Type-safe architecture reducing runtime errors by 75%",
+      "Real-time image scanning in under 500ms using Redis Pub/Sub",
+      "Nudity-detection model with 95%+ accuracy protecting young users",
+      "AI chatbot increasing user engagement by 40%"
+    ],
+    "metrics": {
+      "note": "Figures come from the project notes; confirm how each was measured before publishing.",
+      "items": [
+        {
+          "label": "Node.js major versions upgraded",
+          "value": "10 (12 to 22)"
+        },
+        {
+          "label": "Runtime error reduction",
+          "value": "75%"
+        },
+        {
+          "label": "Image scan response time",
+          "value": "< 500 ms"
+        },
+        {
+          "label": "Nudity detection accuracy",
+          "value": "95%+"
+        },
+        {
+          "label": "Chatbot engagement increase",
+          "value": "40%"
+        }
+      ]
+    },
+    "nextSteps": [
+      "Execute the roadmap to merge users from Firebase and legacy MongoDB into the optimized MongoDB structure"
+    ],
+    "links": {
+      "repository": null,
+      "liveDemo": "https://www.roomco.com/en/"
+    }
+  }
+]

@@ -1,0 +1,34 @@
+---
+import CaseStudyCard from './CaseStudyCard.astro';
+import { getCaseStudies } from '../lib/caseStudies';
+
+const studies = (await getCaseStudies()).slice(0, 3);
+---
+
+<section id="case-studies" class="section">
+  <div class="container">
+    <div data-reveal data-reveal-delay="0.1" class="mb-4">
+      <h2 class="section-title text-center">Case Studies</h2>
+    </div>
+
+    <div data-reveal data-reveal-delay="0.2" class="mb-6">
+      <div class="w-16 h-1 bg-primary mx-auto"></div>
+    </div>
+
+    <div data-reveal data-reveal-delay="0.3" class="mb-12">
+      <p class="section-subtitle text-center mx-auto">
+        Deep dives into the architecture, decisions and trade-offs behind selected systems
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+      {studies.map((entry, index) => <CaseStudyCard study={entry.data} index={index} />)}
+    </div>
+
+    <div class="flex justify-center mt-12">
+      <a href="/case-studies" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-11 px-8">
+        View All Case Studies
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CaseStudyDetail from '../../components/CaseStudyDetail.astro';
+import { getCaseStudies } from '../../lib/caseStudies';
+
+export async function getStaticPaths() {
+  return (await getCaseStudies()).map((entry) => ({
+    params: { slug: entry.id },
+    props: { study: entry.data },
+  }));
+}
+
+const { study } = Astro.props;
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: study.title,
+  description: study.tagline,
+  author: { '@type': 'Person', name: 'Huzaifa Alfahl' },
+  keywords: study.tags.join(', '),
+};
+---
+
+<BaseLayout title={study.title} description={study.tagline} type="article" structuredData={structuredData}>
+  <div class="pt-32">
+    <CaseStudyDetail study={study} />
+  </div>
+</BaseLayout>
