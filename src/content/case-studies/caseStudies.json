@@ -1320,6 +1320,103 @@
     }
   },
   {
+    "id": "beauty-creator-club-competition-analytics",
+    "title": "L’Oréal Beauty Creator Club Competition Analytics",
+    "tagline": "A queued social-profile enrichment and auditable preselection workflow for GCC competition applicants.",
+    "role": "Backend Developer",
+    "type": "Competition analytics and preselection",
+    "relatedProjectId": "11",
+    "tags": ["Laravel", "PHP", "Social analytics", "GCC", "Queue processing", "Preselection"],
+    "summary": "A Laravel workflow that captures an applicant’s primary Instagram or TikTok profile, enriches eligible GCC applications through Influencers Club, and presents a ranked preselection snapshot to authorized competition administrators. It includes lifecycle tracking, review actions and comments, and private XLSX exports.",
+    "problem": {
+      "context": "Competition administrators need a controlled way to assess eligible content creator and makeup artist applications using social-profile analytics while preserving a reviewable shortlist.",
+      "challenges": [
+        "The two legacy applicant tables reuse numeric IDs, requiring applicant type to resolve the correct source record.",
+        "Full enrichment is a paid synchronous provider request with no report-retrieval endpoint, making duplicate dispatches and automatic retries costly.",
+        "Provider responses require normalization into consistent engagement, audience geography, credibility, performance, and profile fields.",
+        "Preselection results must remain stable even if live analytics change later."
+      ]
+    },
+    "solution": {
+      "approach": [
+        "Register event-scoped primary social identities alongside application records.",
+        "Use scheduled, bounded queue dispatch to claim eligible profiles atomically before enrichment.",
+        "Normalize Influencers Club full-enrichment responses into a dedicated social analytics read model.",
+        "Create a ranked, immutable preselection snapshot only after eligible analytics records have settled."
+      ],
+      "features": [
+        { "name": "Primary-profile registration", "description": "Validates and canonicalizes Instagram and TikTok handles or public profile URLs, then records one scoped primary profile per application." },
+        { "name": "Queued analytics lifecycle", "description": "Dispatches eligible GCC Instagram and TikTok profiles to an analytics queue and records queued, processing, completed, insufficient-data, unsupported, failed, and retry-required states." },
+        { "name": "Provider normalization", "description": "Maps full-enrichment responses into persisted follower, engagement, GCC audience, credibility, performance, median-view, and profile fields." },
+        { "name": "Auditable preselection", "description": "Ranks completed profiles meeting configured country, engagement, and GCC-audience thresholds and saves copied result data as an immutable run." },
+        { "name": "Admin review and exports", "description": "Allows authorized administrators to review shortlisted results, add comments, and request private XLSX exports that are invalidated when reviews change." }
+      ]
+    },
+    "architecture": {
+      "style": "Laravel modular monolith with scheduled queue-based enrichment",
+      "diagram": "Localized application forms -> Laravel application and MySQL -> scheduled analytics dispatcher -> analytics queue -> Influencers Club -> normalized social analytics -> immutable preselection run -> authorized admin dashboard and private XLSX export",
+      "layers": [
+        { "name": "Application and admin interface", "tech": "Laravel Blade, JavaScript, Tailwind CSS", "detail": "Provides localized application routes and authenticated competition dashboard routes for filtering, review, comments, and export requests." },
+        { "name": "Backend workflow", "tech": "Laravel 8, PHP", "detail": "Validates submissions, persists application and identity claims transactionally, dispatches analytics jobs, and builds preselection snapshots." },
+        { "name": "Analytics integration", "tech": "Influencers Club HTTP API", "detail": "Performs server-side full handle enrichment with bearer authentication and normalizes provider data." },
+        { "name": "Data", "tech": "MySQL, Laravel Eloquent migrations", "detail": "Stores scoped social profiles, analytics lifecycle data, immutable preselection runs and results, reviews, and export records." },
+        { "name": "Asynchronous processing", "tech": "Laravel Queues, Laravel Scheduler", "detail": "Schedules bounded analytics dispatches, isolates provider calls in workers, and generates private exports asynchronously." }
+      ],
+      "keyBoundaries": [
+        "Analytics dispatch refuses a synchronous queue connection outside dry runs.",
+        "Application email claims and scoped social-profile indexes provide database-level uniqueness across legacy applicant tables.",
+        "Competition dashboard routes require authentication and competition-admin authorization.",
+        "Generated XLSX files use a private storage disk and can be downloaded only by the requesting administrator before expiry."
+      ],
+      "flows": [
+        { "name": "Analytics enrichment and preselection", "steps": ["An applicant submits a validated primary Instagram or TikTok account with a GCC country declaration.", "The scheduler finds locally eligible profiles without analytics records, claims them in a transaction, and queues bounded analytics jobs.", "A unique job calls Influencers Club, normalizes the full response, and persists lifecycle status and analytics fields.", "Once every eligible profile is settled, the system creates a ranked immutable preselection run from completed analytics that meet configured thresholds.", "Authorized administrators review the saved shortlist and can request private XLSX exports."] }
+      ],
+      "queues": ["analytics queue for Influencers Club enrichment", "exports queue for private preselection XLSX generation"],
+      "scheduledMaintenance": ["Analytics dispatch runs every minute after the configured start time, with server-wide and overlap guards.", "Preselection-export cleanup runs hourly."]
+    },
+    "techStack": {
+      "backend": ["PHP", "Laravel 8", "Laravel Eloquent", "Laravel Queues", "Laravel Scheduler"],
+      "frontend": ["Blade", "JavaScript", "Tailwind CSS", "Laravel Mix"],
+      "data": ["MySQL", "SQLite for tests"]
+    },
+    "keyDecisions": [
+      { "decision": "Persist an analytics lifecycle row before dispatching each job.", "reason": "The dispatcher uses transactional locking so simultaneous scheduler processes cannot queue the same profile twice.", "tradeoff": "A failed dispatch must remove the unclaimed queued row before it can be reconsidered." },
+      { "decision": "Disable automatic retry for transient full-enrichment failures.", "reason": "The provider has no report-retrieval endpoint, so a repeated request may consume another credit when a response was lost.", "tradeoff": "Transient failures require explicit operator review." },
+      { "decision": "Store preselection output as an immutable snapshot.", "reason": "Dashboard rows and exports must not silently change when underlying social analytics are later updated.", "tradeoff": "The snapshot is intentionally separate from live analytics." },
+      { "decision": "Limit enrichment eligibility to declared GCC applicants with Instagram or TikTok primary profiles.", "reason": "The workflow targets the configured GCC countries and supported analytics platforms.", "tradeoff": "Other platforms and non-GCC declared applications are outside the analytics population." }
+    ],
+    "challenges": [
+      { "challenge": "Preventing duplicate paid enrichment requests under concurrent dispatch.", "solution": "The dispatcher locks profile and analytics records in database transactions, while the enrichment job is unique for 30 minutes.", "outcome": "A profile is claimed before queue dispatch and duplicate work is guarded at both dispatch and job levels." },
+      { "challenge": "Handling incomplete, private, invalid, rate-limited, and transient provider responses.", "solution": "The normalizer classifies unavailable required KPIs and unsupported profiles, while the job records provider, authorization, network, and transient-provider failure classifications.", "outcome": "Analytics records retain an explicit lifecycle state and error classification." },
+      { "challenge": "Maintaining explainable preselection decisions.", "solution": "Configured thresholds, ordering version, rank, and copied analytics fields are stored with each preselection run and result.", "outcome": "The dashboard and exports are based on the saved run rather than mutable live data." }
+    ],
+    "engineering": [
+      "Uses transactions and row-level locks for profile, analytics, application, review, and export state changes.",
+      "Applies platform-specific normalization and validation for public Instagram and TikTok identities.",
+      "Converts provider audience-country fractional weights into persisted percentage values.",
+      "Uses a single analytics worker with a 250 ms delay between outbound requests to stay below the documented 240-requests-per-minute rate.",
+      "Caps analytics batches and preselection runs at 500 records.",
+      "Escapes formula-like XLSX cell values before writing exports.",
+      "Includes unit and feature tests for provider normalization, API client behavior, analytics dispatch, retry review, preselection, dashboard access, reviews, exports, and cleanup."
+    ],
+    "outcomes": [
+      "Delivered a scheduled, queue-backed analytics pipeline for eligible GCC competition profiles.",
+      "Delivered an authorized competition dashboard with immutable shortlist review, comments, filtering, and private XLSX exports.",
+      "Delivered persisted analytics statuses and error classifications for operational visibility."
+    ],
+    "screenshots": [
+      { "caption": "Analytics enrichment and preselection sequence flow", "src": "/images/case-studies/beauty-creator-club-analytics-sequence.png" },
+      { "caption": "Technical high-level architecture", "src": "/images/case-studies/beauty-creator-club-architecture.png" }
+    ],
+    "limitations": [
+      "Analytics eligibility is limited to declared GCC applicants with Instagram or TikTok primary profiles.",
+      "Automatic re-enrichment is intentionally disabled for transient provider failures.",
+      "A completed analytics record is configured to expire after 30 days.",
+      "The repository contains no project-specific deployment configuration files beyond Laravel environment and application configuration."
+    ],
+    "links": { "repository": null, "liveDemo": null, "apiDocs": null }
+  },
+  {
     "id": "roomco-legacy-modernization",
     "title": "Roomco — Legacy Platform Modernization",
     "tagline": "Migrating a legacy Express.js and Node 12 platform to a NestJS modular monolith, merging two Express apps into one, extracting moderation microservices, and modernizing the MongoDB data layer.",

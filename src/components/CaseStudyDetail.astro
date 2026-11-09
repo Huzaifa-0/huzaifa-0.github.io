@@ -114,6 +114,17 @@ const panel = 'bg-secondary/30 p-6 rounded-lg border border-border/40';
     <CaseSection title="Architecture" id="architecture">
       <p class="text-lg mb-6">{arch.style}</p>
 
+      {study.screenshots && study.screenshots.length > 0 && (
+        <div class:list={['mb-8 grid grid-cols-1 gap-6', study.screenshots.length > 1 && 'lg:grid-cols-2']}>
+          {study.screenshots.map((s) => (
+            <figure class="overflow-hidden rounded-lg border border-border/40 bg-secondary/20">
+              <img src={s.src} alt={s.caption} loading="lazy" class="h-auto w-full" />
+              <figcaption class="border-t border-border/40 px-4 py-3 text-sm text-muted-foreground">{s.caption}</figcaption>
+            </figure>
+          ))}
+        </div>
+      )}
+
       {arch.flows && arch.flows.length > 0 && (
         <div class:list={['mb-8 grid grid-cols-1 gap-6', arch.flows.length > 1 && 'lg:grid-cols-2']}>
           {arch.flows.map((flow) => <FlowChart name={flow.name} steps={flow.steps} />)}
