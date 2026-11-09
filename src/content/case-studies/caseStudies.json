@@ -599,7 +599,7 @@
     "id": "digital-consent-fingerprint-signing",
     "title": "Digital Consent Forms with Fingerprint Signing",
     "tagline": "A clinic consent workflow that captures a patient fingerprint, validates the signing flow with Hawiti (Kuwait Mobile ID), and stores a signed PDF.",
-    "role": "Not specified in repository",
+    "role": "Full Stack",
     "tags": ["Laravel", "Next.js", "Digital Consent", "Fingerprint Capture", "Healthcare"],
     "summary": "A Patient-module workflow for creating, assigning, completing, and retaining clinical consent forms. The dashboard captures a fingerprint from a ZKTeco reader through a local Node.js service, validates the signing flow through Hawiti (Kuwait Mobile ID), stores protected capture data through the Laravel API, stamps a non-row-ID reference into the consent HTML, and saves the resulting PDF as an appointment document.",
     "problem": {
