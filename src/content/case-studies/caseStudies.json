@@ -596,6 +596,88 @@
     }
   },
   {
+    "id": "digital-consent-fingerprint-signing",
+    "title": "Digital Consent Forms with Fingerprint Signing",
+    "tagline": "A clinic consent workflow that captures a patient fingerprint, validates the signing flow with Hawiti (Kuwait Mobile ID), and stores a signed PDF.",
+    "role": "Not specified in repository",
+    "tags": ["Laravel", "Next.js", "Digital Consent", "Fingerprint Capture", "Healthcare"],
+    "summary": "A Patient-module workflow for creating, assigning, completing, and retaining clinical consent forms. The dashboard captures a fingerprint from a ZKTeco reader through a local Node.js service, validates the signing flow through Hawiti (Kuwait Mobile ID), stores protected capture data through the Laravel API, stamps a non-row-ID reference into the consent HTML, and saves the resulting PDF as an appointment document.",
+    "problem": {
+      "context": "Clinical consent forms needed to be associated with procedures, completed in the dashboard, and retained as signed documents.",
+      "challenges": [
+        "Connecting a USB fingerprint reader without exposing hardware access directly to the browser or Laravel API.",
+        "Protecting biometric templates and fingerprint images while linking each capture to the signed consent document.",
+        "Preventing expired, reused, or user-mismatched fingerprint captures from signing a form."
+      ]
+    },
+    "solution": {
+      "approach": [
+        "Use a local smartcard-service on the reader-connected Windows machine, proxied through Next.js API routes.",
+        "Persist captures through permission-protected Laravel endpoints and bind a capture to the generated appointment document within a database transaction.",
+        "Validate the signing flow with Hawiti (Kuwait Mobile ID), then render consent HTML to PDF after replacing the patient signature marker with a timestamped fingerprint reference."
+      ],
+      "features": [
+        { "name": "Procedure consent administration", "description": "Links active medical consent forms to procedures and records whether each form is required." },
+        { "name": "Fingerprint-gated signing", "description": "Requires a captured fingerprint before a patient or procedure consent can be submitted for PDF generation." },
+        { "name": "Hawiti identity validation", "description": "After fingerprint signing, validates the consent signing flow through the Hawiti (Kuwait Mobile ID) integration before the document is finalized." },
+        { "name": "Local reader bridge", "description": "Uses a Node.js service on port 4000 to obtain a ZKTeco template and PNG image, with Next.js routes providing status and capture proxies." },
+        { "name": "Signed consent archive", "description": "Lists signed consent documents for a patient and opens the stored PDF." },
+        { "name": "Biometric-data protection", "description": "Encrypts fingerprint templates through Laravel's encrypted cast, encrypts image files on private storage, and hides templates from responses." }
+      ]
+    },
+    "architecture": {
+      "style": "Modular Laravel application with a Next.js dashboard and a local hardware bridge",
+      "diagram": "Dashboard browser -> Next.js fingerprint routes -> smartcard-service (port 4000) -> ZKTeco USB reader; Dashboard -> Laravel Patient API -> Hawiti (Kuwait Mobile ID) validation -> private storage and database",
+      "layers": [
+        { "name": "Dashboard", "tech": "Next.js, React, TypeScript, next-intl", "detail": "Manages consent-form dialogs, reader status, capture interaction, validation, and signed-form viewing." },
+        { "name": "Hardware bridge", "tech": "Node.js, Express, koffi", "detail": "Runs near the USB device, loads the ZKTeco SDK on Windows, and exposes fingerprint status and capture endpoints." },
+        { "name": "Backend", "tech": "Laravel, PHP, mPDF, Hawiti (Kuwait Mobile ID)", "detail": "Provides authenticated consent and fingerprint APIs, validates the signing flow with Hawiti, enforces signing rules, generates PDFs, and links captures to documents." },
+        { "name": "Data and storage", "tech": "MySQL, Laravel private local disk", "detail": "Stores consent links, document records, encrypted fingerprint templates, metadata, and encrypted fingerprint-image files." }
+      ],
+      "keyBoundaries": [
+        "The browser accesses the reader through Next.js API proxies rather than directly.",
+        "The ZKTeco service must run on the Windows machine connected to the USB reader.",
+        "Biometric templates are hidden from API responses; signed PDFs contain a generated capture reference rather than the template or row ID."
+      ],
+      "flows": [
+        { "name": "Procedure consent signing", "steps": ["A user opens a procedure consent form and completes its HTML fields.", "The dashboard checks reader status, captures a fingerprint through the local service, and saves the capture through the Laravel API.", "The dashboard submits the form with the capture ID.", "The backend validates ownership, freshness, one-time use, and the signature marker; validates the signing flow with Hawiti (Kuwait Mobile ID); stamps the capture reference into the HTML; generates a PDF; stores a document record; and attaches the capture to that document."] },
+        { "name": "Signed-consent retrieval", "steps": ["The dashboard requests patient documents with the consent-only filter.", "The backend returns consent document records.", "The dashboard displays signed forms and opens the PDF through the document viewer."] }
+      ],
+      "scheduledMaintenance": ["Laravel model pruning removes unused fingerprint captures older than one day and deletes their encrypted image files."]
+    },
+    "techStack": {
+      "backend": ["PHP", "Laravel", "mPDF"],
+      "frontend": ["Next.js", "React", "TypeScript", "next-intl"],
+      "data": ["MySQL", "Laravel private local storage"],
+      "integrations": ["Hawiti (Kuwait Mobile ID)"],
+      "devops": ["Docker", "Docker Compose", "PM2", "Node.js"]
+    },
+    "keyDecisions": [
+      { "decision": "Use a local Node.js reader service instead of connecting the reader to the API directly.", "reason": "The ZKTeco USB reader and Windows DLL must run on the machine connected to the device; the dashboard communicates through proxied HTTP endpoints.", "tradeoff": "The reader service must be deployed and running alongside the dashboard or on a configured reachable host." },
+      { "decision": "Use a generated reference in the signed PDF instead of embedding biometric data.", "reason": "The PDF can identify the associated capture without exposing the template or database row ID.", "tradeoff": "The reference must be resolved through protected application data." },
+      { "decision": "Make fingerprint captures single-use and short-lived for signing.", "reason": "The backend rejects captures belonging to another user, already attached to a document, or older than 15 minutes.", "tradeoff": "A patient must be rescanned when a capture expires or has been used." }
+    ],
+    "challenges": [
+      { "challenge": "Safely handle biometric data.", "solution": "Encrypt templates through the model cast, encrypt image files on private storage, hide templates by default, and prune unused captures.", "outcome": "Captured biometric material is not returned in normal API responses and unused captures are removed." },
+      { "challenge": "Prevent a capture from being reused across consent forms.", "solution": "Lock the capture during signing, validate that it is unlinked and recent, then attach it to the resulting document in the transaction.", "outcome": "A capture can be associated with one signed document." },
+      { "challenge": "Support development without reader hardware.", "solution": "Provide an explicit mock fingerprint driver and automated tests using a fake SDK.", "outcome": "Capture and UI behavior can be tested without a physical reader." }
+    ],
+    "engineering": [
+      "JWT-protected fingerprint routes require dedicated create and view permissions.",
+      "Reader-status and capture proxies use no-store requests, timeout handling, and clear unavailable-service responses.",
+      "The ZKTeco adapter polls non-blocking SDK capture calls, prevents concurrent capture requests, and produces a PNG from raw grayscale image data.",
+      "Backend feature tests cover encrypted storage, signing constraints, signature-marker replacement, and pruning; frontend and local-service tests cover reader states, bridge behavior, and SDK adapters.",
+      "Consent-form links use update-or-create behavior to avoid duplicate procedure/form links."
+    ],
+    "outcomes": [
+      "Delivered consent-form assignment and completion flows for procedures.",
+      "Delivered fingerprint-backed consent signing with Hawiti (Kuwait Mobile ID) validation, PDF generation, and document linkage.",
+      "Delivered a signed-consent list for patient records.",
+      "Delivered deployment guidance for the local reader service, including PM2 configuration and Windows SDK setup."
+    ],
+    "links": { "repository": null, "liveDemo": null, "apiDocs": null }
+  },
+  {
     "id": "monlogement-ads-importer",
     "title": "MonLogement Ads Importer",
     "tagline": "A queue-driven pipeline that ingests real-estate listings from agency FTP drops (ZIP + pipe-delimited CSV), validates and geocodes them, processes their photos, and keeps a search index in sync.",
