@@ -4,11 +4,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getImage } from 'astro:assets';
 import ProjectDetail from '../../components/ProjectDetail.astro';
 import { projectImage } from '../../lib/projectImages';
+import { projectSlug } from '../../lib/projectSlug';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
   return projects.map((entry) => ({
-    params: { slug: entry.id },
+    params: { slug: projectSlug(entry.data.title) },
     props: { project: entry.data },
   }));
 }

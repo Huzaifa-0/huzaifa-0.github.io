@@ -1,7 +1,9 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 import CaseSection from './CaseSection.astro';
 import FlowChart from './FlowChart.astro';
+import { projectSlug } from '../lib/projectSlug';
 
 interface Props {
   study: CollectionEntry<'caseStudies'>['data'];
@@ -9,6 +11,9 @@ interface Props {
 
 const { study } = Astro.props;
 const { architecture: arch } = study;
+const relatedProject = study.relatedProjectId
+  ? (await getCollection('projects')).find((project) => project.id === study.relatedProjectId)
+  : undefined;
 
 // Template placeholders such as "<add GitHub URL>" are skipped until replaced.
 const isUrl = (v?: string | null): v is string => !!v && v.startsWith('http');
@@ -44,8 +49,8 @@ const panel = 'bg-secondary/30 p-6 rounded-lg border border-border/40';
         {links.map((l) => (
           <a href={l.href!} target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-6 transition-colors">{l.label}</a>
         ))}
-        {study.relatedProjectId && (
-          <a href={`/projects/${study.relatedProjectId}`} class="inline-flex items-center justify-center rounded-md text-sm font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-6 transition-colors">Related Project</a>
+        {relatedProject && (
+          <a href={`/projects/${projectSlug(relatedProject.data.title)}`} class="inline-flex items-center justify-center rounded-md text-sm font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-6 transition-colors">Related Project</a>
         )}
       </div>
     </header>

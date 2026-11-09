@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import { projectImage } from '../lib/projectImages';
+import { projectSlug } from '../lib/projectSlug';
 
 interface Project {
   id: string;
@@ -20,7 +21,7 @@ const delay = 0.1 + (index % 6) * 0.1;
 ---
 
 <div data-reveal data-reveal-delay={delay} class="h-full">
-  <a href={`/projects/${project.id}`} class="group block h-full">
+  <a href={`/projects/${projectSlug(project.title)}`} class="group block h-full">
     <div class="flex h-full flex-col overflow-hidden rounded-lg border border-border/50 bg-card text-card-foreground shadow transition-all duration-500 group-hover:shadow-xl group-hover:scale-[1.02]">
       <div class="relative aspect-video overflow-hidden">
         <Image
