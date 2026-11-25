@@ -1171,7 +1171,7 @@
   },
   {
     "id": "blindlove-ai-matchmaking",
-    "title": "Blindlove — AI Matchmaking Engine",
+    "title": "BL — AI Matchmaking Engine",
     "tagline": "A hybrid matching system for an anonymous dating app: weighted preference filtering narrows the pool, then Redis vector search ranks candidates by semantic profile similarity.",
     "role": "Lead Backend Developer and AI Architect",
     "type": "Backend / AI matching",
@@ -1186,7 +1186,7 @@
       "Matchmaking",
       "Real-time"
     ],
-    "summary": "Blindlove is an anonymous dating platform. I designed and built its matchmaking backend: user bios, interests and preferences are turned into vector embeddings with Hugging Face sentence-transformers and indexed in Redis Stack. A hybrid algorithm combines weighted-preference filtering, bitmap interest scoring, cosine similarity and K-nearest-neighbour vector search, and the best matches are cached in Redis for fast retrieval.",
+    "summary": "BL is an anonymous dating platform. I designed and built its matchmaking backend: user bios, interests and preferences are turned into vector embeddings with Hugging Face sentence-transformers and indexed in Redis Stack. A hybrid algorithm combines weighted-preference filtering, bitmap interest scoring, cosine similarity and K-nearest-neighbour vector search, and the best matches are cached in Redis for fast retrieval.",
     "problem": {
       "context": "In an anonymous dating app there are no photos or visible profiles to browse, so match quality depends almost entirely on how well the system understands what a person wrote and prefers. Filters alone match on declared fields and miss semantic similarity between free-text bios and interests, and the matching has to stay fast for many concurrent users.",
       "challenges": [
